@@ -16,13 +16,18 @@ class FSViewWindow : public QTreeView
 {
     Q_OBJECT
 public:
-    explicit FSViewWindow(QDialog *parent = nullptr) :
+ explicit FSViewWindow(QDialog *parent = nullptr) :
         QTreeView(nullptr) {
         mode = new TreeModel(this);
         setModel(mode);
         setEditTriggers(QAbstractItemView::NoEditTriggers);
         resetView();
         setWindowTitle(tr("FSView"));
+        setAnimated(true);
+        setColumnWidth(0,400);
+        setColumnWidth(1,80);
+        setColumnWidth(2,80);
+        setColumnWidth(3,150);
         resize(QSize(800,600));
         m_parent = parent;
     }
@@ -155,7 +160,7 @@ public:
 
     void resetView(void) {
         mode->removeTree(rootIndex);
-        rootIndex = mode->addTree("/", 0, QModelIndex());
+        rootIndex = mode->addTree("/", 0, 0, QModelIndex());
         expand(rootIndex);
     }
 
@@ -188,7 +193,7 @@ private:
             switch(mm->type) {
                 case FSView_DIR :
                 {
-                    QModelIndex modelIndex = mode->addTree(filename, mm->type, index);
+                    QModelIndex modelIndex = mode->addTree(filename, mm->type, 0, index);
                     if(path != "/")
                         listExt4FSAll(path + "/" + filename, modelIndex);
                     else
@@ -198,7 +203,12 @@ private:
                 case FSView_REG_FILE :
                 default :
                 {
-                    mode->addTree(filename, mm->type, index);
+                    uint64_t rsize = ext4_get_contents(mm->ino, NULL);
+                    uint8_t *rdata = new uint8_t[rsize];
+                    ext4_get_contents(mm->ino, rdata);
+                    uint64_t size = *(uint64_t *)(rdata+8);
+                    mode->addTree(filename, mm->type, size, index);
+                    free(rdata);
                     break;
                 }
             }
@@ -223,7 +233,7 @@ private:
                 fn = fno.fname;
                 if (fno.fattrib & AM_DIR) { 
                     QString filename(QByteArray(fn,strlen(fn)));
-                    QModelIndex modelIndex = mode->addTree(filename, FSView_DIR, index);
+                    QModelIndex modelIndex = mode->addTree(filename, FSView_DIR, 0, index);
                     if(path != "/")
                         listFatFSAll(path + "/" + filename, modelIndex);
                     else
@@ -231,7 +241,8 @@ private:
                     break;
                 } else {
                     QString filename(QByteArray(fn,strlen(fn)));
-                    mode->addTree(filename, FSView_REG_FILE, index);
+                    uint64_t size = fno.fsize;
+                    mode->addTree(filename, FSView_REG_FILE, size, index);
                 }
             }
             f_closedir(&dir);
@@ -258,22 +269,6 @@ private:
             d = collectdir( ino, d);
             struct jffs2_raw_inode *ri, *tmpi;
             while (d != NULL) {
-                switch (dt2fsv[d->type]) {
-                    case FSView_REG_FILE:
-                    case FSView_FIFO:
-                    case FSView_CHARDEV:
-                    case FSView_BLOCKDEV:
-                    case FSView_SYMLINK:
-                    case FSView_SOCKET:
-                    default:
-                    {
-                        QString filename(QByteArray(d->name,d->nsize));
-                        mode->addTree(filename, dt2fsv[d->type], index);
-                        break;
-                    }
-                    case FSView_DIR:
-                        break;
-                }
                 ri = find_raw_inode( d->ino, 0);
                 if (!ri) {
                     qDebug("bug: raw_inode missing!");
@@ -286,12 +281,28 @@ private:
                 while (tmpi) {
                     len = je32_to_cpu(tmpi->dsize) + je32_to_cpu(tmpi->offset);
                     tmpi = find_raw_inode(d->ino, je32_to_cpu(tmpi->version));
-                    Q_UNUSED(len);
                 }
                 
+                switch (dt2fsv[d->type]) {
+                    case FSView_REG_FILE:
+                    case FSView_FIFO:
+                    case FSView_CHARDEV:
+                    case FSView_BLOCKDEV:
+                    case FSView_SYMLINK:
+                    case FSView_SOCKET:
+                    default:
+                    {
+                        QString filename(QByteArray(d->name,d->nsize));
+                        mode->addTree(filename, dt2fsv[d->type], len, index);
+                        break;
+                    }
+                    case FSView_DIR:
+                        break;
+                }
+
                 if (dt2fsv[d->type] == FSView_DIR) {
                     QString filename(QByteArray(d->name,d->nsize));
-                    QModelIndex modelIndex = mode->addTree(filename, dt2fsv[d->type], index);
+                    QModelIndex modelIndex = mode->addTree(filename, dt2fsv[d->type], 0, index);
                     if(path != "/")
                         listJffs2FSAll(path + "/" + filename, modelIndex);
                     else
