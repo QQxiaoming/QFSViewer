@@ -7,10 +7,10 @@
 #include <QApplication>
 #include <QDialog>
 
-#include "treemodel.h"
+#include "jffs2extract.h"
 #include "ext4_module.h"
 #include "ff.h"
-#include "jffs2extract.h"
+#include "treemodel.h"
 
 class FSViewWindow : public QTreeView
 {

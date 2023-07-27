@@ -8,7 +8,7 @@
 #define MyAppOutputName "QFSViewer_setup"
 
 [Setup]
-AppId={4368AAE0-A354-4127-94A9-0C38757B1DC5}
+AppId={{4368AAE0-A354-4127-94A9-0C38757B1DC5}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 ;AppVerName={#MyAppName} {#MyAppVersion}

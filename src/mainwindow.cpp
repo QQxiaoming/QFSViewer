@@ -93,6 +93,6 @@ void MainWindow::on_buttonBox_accepted()
 
 void MainWindow::on_buttonBox_rejected()
 {
-
+    qApp->exit();
 }
 
