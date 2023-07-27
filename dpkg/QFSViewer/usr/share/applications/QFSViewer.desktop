@@ -1,0 +1,10 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=false
+Icon=/opt/QFSViewer/QFSViewer.png
+Name=QFSViewer
+Exec=/usr/bin/QFSViewer
+Commen=QFSViewer Tools
+Categories=Utility;
