@@ -1,0 +1,46 @@
+[![Windows ci](https://img.shields.io/github/actions/workflow/status/qqxiaoming/qfsviewer/windows.yml?branch=main&logo=windows)](https://github.com/QQxiaoming/qfsviewer/actions/workflows/windows.yml)
+[![Linux ci](https://img.shields.io/github/actions/workflow/status/qqxiaoming/qfsviewer/linux.yml?branch=main&logo=linux)](https://github.com/QQxiaoming/qfsviewer/actions/workflows/linux.yml)
+[![Macos ci](https://img.shields.io/github/actions/workflow/status/qqxiaoming/qfsviewer/macos.yml?branch=main&logo=apple)](https://github.com/QQxiaoming/qfsviewer/actions/workflows/macos.yml)
+[![CodeFactor](https://img.shields.io/codefactor/grade/github/qqxiaoming/qfsviewer.svg?logo=codefactor)](https://www.codefactor.io/repository/github/qqxiaoming/qfsviewer)
+[![License](https://img.shields.io/github/license/qqxiaoming/qfsviewer.svg?colorB=f48041&logo=gnu)](https://github.com/QQxiaoming/qfsviewer)
+[![GitHub tag (latest SemVer)](https://img.shields.io/github/tag/QQxiaoming/QFSViewer.svg?logo=git)](https://github.com/QQxiaoming/QFSViewer/releases)
+[![GitHub All Releases](https://img.shields.io/github/downloads/QQxiaoming/QFSViewer/total.svg?logo=pinboard)](https://github.com/QQxiaoming/QFSViewer/releases)
+[![GitHub stars](https://img.shields.io/github/stars/QQxiaoming/QFSViewer.svg?logo=github)](https://github.com/QQxiaoming/QFSViewer)
+[![GitHub forks](https://img.shields.io/github/forks/QQxiaoming/QFSViewer.svg?logo=github)](https://github.com/QQxiaoming/QFSViewer)
+[![Gitee stars](https://gitee.com/QQxiaoming/QFSViewer/badge/star.svg?theme=dark)](https://gitee.com/QQxiaoming/QFSViewer)
+[![Gitee forks](https://gitee.com/QQxiaoming/QFSViewer/badge/fork.svg?theme=dark)](https://gitee.com/QQxiaoming/QFSViewer)
+
+# QFSViewer
+
+[English](./README.md) | 简体中文
+
+QFSViewer一款用于开发人员查看各种文件系统原始映像文件内容的小工具，特点是不需要依赖操作系统挂载，不需要权限申请，全部在软件应用内完成，基于此特点，该工具可以轻松运行在windows/linux/macos，甚至其他嵌入式系统。该工具基于Qt，部分代码来源自其他开源项目，项目完全遵守其对应的开源协议，文末附上引用，特此感谢。该工具界面简单清晰，操作便携，主界面如下：
+
+![img0](./img/docimg0.png)
+
+![img1](./img/docimg1.png)
+
+## 功能描述
+
+1. 选择要打开的文件系统原始映像文件所在路径。
+2. 点击确认按钮，完成加载并显示文件系统内容。
+
+## 格式支持
+
+目前支持格式包括：
+
+jffs2\ext4\fatfs
+
+## 贡献
+
+如果您对本项目有建议或想法，欢迎在GitHub或Gitee上提交issue和pull requests。
+
+目前项目建议使用版本Qt6.2.0或更高版本。
+
+## 感谢
+
+- [QFontIcon](https://github.com/dridk/QFontIcon)
+- [ext4](https://github.com/ggetchev/pyext4)
+- [ff15](http://elm-chan.org/fsw/ff/00index_e.html)
+- [jffs2](https://github.com/rickardp/jffs2extract)
+- [treemodel.cpp](https://github.com/chocoball/QTreeViewTest)
