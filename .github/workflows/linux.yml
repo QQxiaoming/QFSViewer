@@ -40,24 +40,20 @@ jobs:
         run: |
           git fetch --tags --force
           git describe --always --long --dirty --abbrev=10 --tags | awk '{print "\""$0"\""}' > git_tag.inc
-          sed -i 's/git_tag.inc/git_tag.ci.inc/g' QFSviewer.pro
+          sed -i 's/git_tag.inc/git_tag.ci.inc/g' QFSViewer.pro
           sed -i 's/QT_DIR=\/opt\/Qt6.2.0\/6.2.0\/gcc_64/QT_DIR=$(cd "$(dirname "$0")";pwd)\/..\/Qt\/6.2.0\/gcc_64/g' build_deb.sh
-          sed -i 's/\/home\/qqm\/Desktop\/qfsviewer\/depend\/freetype/\/usr\/local\/qfsviewer/g' partform_unix.pri
-          cd depend
-          sudo ./build.sh
-          cd -
           ./build_deb.sh
 
       - name: Upload build asserts
         uses: actions/upload-artifact@v3.1.2
         with:
-          name: QFSviewer_Ubuntu2004
+          name: QFSViewer_Ubuntu2004
           path: |
             ./dpkg/*.deb
 
       - name: Run tests
         run: |
           if ls ./dpkg | grep ".deb" ; then echo "Pass"; else echo "Failed" && exit 1; fi;
-          timeout --foreground -s SIGKILL 20s ./dpkg/QFSviewer_Linux_*/opt/QFSviewer/QFSviewer --version > >(tee run.log) || {
-            if cat run.log | grep "QFSviewer" ; then echo "Pass" && exit 0; else echo "Failed" && exit 1; fi;
+          timeout --foreground -s SIGKILL 20s ./dpkg/QFSViewer_Linux_*/opt/QFSViewer/QFSViewer --version > >(tee run.log) || {
+            if cat run.log | grep "QFSViewer" ; then echo "Pass" && exit 0; else echo "Failed" && exit 1; fi;
           }

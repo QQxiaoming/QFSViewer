@@ -7,7 +7,7 @@ set "QT_TOOLS_DIR=C:/Qt/Qt6.2.0/Tools/mingw810_32/bin"
 :: 定义Inno Setup目录
 set "INNO_SETUP_DIR=C:/Program Files (x86)/Inno Setup 6"
 :: 定义版本号
-set "QFSVIEWER_VERSION=0.2.4"
+set "QFSVIEWER_VERSION=0.0.1"
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
@@ -22,7 +22,7 @@ if exist ".\build_debug" (
 if exist ".\build_release" (
     rmdir /Q /S .\build_release
 )
-qmake QFSviewer.pro -spec win32-g++
+qmake QFSViewer.pro -spec win32-g++
 mingw32-make -j8
 :: clean打包目录
 if exist ".\InnoSetup\build" (
@@ -34,10 +34,10 @@ copy /y .\InnoSetup\build_setup.iss .\InnoSetup\build_temp_setup.iss
 .\tools\sed\sed.exe -i "s/#VERSIONINFOVERSION#/%QFSVIEWER_VERSION%.000/g" .\InnoSetup\build_temp_setup.iss
 del /f /q /a .\sed*
 :: 构建打包目录
-xcopy /y .\build_release\out\QFSviewer.exe .\InnoSetup\build\
+xcopy /y .\build_release\out\QFSViewer.exe .\InnoSetup\build\
 xcopy /y .\test\* .\InnoSetup\build\test\
 :: 使用windeployqt拷贝依赖dll库到打包目录
-windeployqt --dir .\InnoSetup\build .\InnoSetup\build\QFSviewer.exe
+windeployqt --dir .\InnoSetup\build .\InnoSetup\build\QFSViewer.exe
 xcopy /y "%QT_TOOLS_DIR%\..\bin\lib*.dll" ".\InnoSetup\build\"
 xcopy /y "%QT_TOOLS_DIR%\..\lib\lib*.dll" ".\InnoSetup\build\"
 :: 打包

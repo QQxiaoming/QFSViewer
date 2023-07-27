@@ -41,22 +41,18 @@ jobs:
         run: |
           git fetch --tags --force
           git describe --always --long --dirty --abbrev=10 --tags | awk '{print "\""$0"\""}' > git_tag.inc
-          sed -i'.original' -e 's/git_tag.inc/git_tag.ci.inc/g' QFSviewer.pro
+          sed -i'.original' -e 's/git_tag.inc/git_tag.ci.inc/g' QFSViewer.pro
           sed -i'.original' -e 's/QT_DIR=\/opt\/Qt6.2.0\/6.2.0\/gcc_64/QT_DIR=$(cd "$(dirname "$0")";pwd)\/..\/Qt\/6.2.0\/macos/g' build_dmg.sh
-          sed -i'.original' -e 's/\/home\/qqm\/Desktop\/qfsviewer\/depend\/freetype/\/usr\/local\/qfsviewer/g' partform_unix.pri
-          cd depend
-          sudo ./build.sh
-          cd -
           ./build_dmg.sh
 
       - name: Upload build asserts
         uses: actions/upload-artifact@v3.1.2
         with:
-          name: QFSviewer_macos
+          name: QFSViewer_macos
           path: |
-            ./build_release/out/QFSviewer.dmg
+            ./build_release/out/QFSViewer.dmg
 
       - name: Run tests
         run: |
-          sudo hdiutil attach ./build_release/out/QFSviewer.dmg
-          /Volumes/QFSviewer/QFSviewer.app/Contents/MacOS/QFSviewer --version
+          sudo hdiutil attach ./build_release/out/QFSViewer.dmg
+          /Volumes/QFSViewer/QFSViewer.app/Contents/MacOS/QFSViewer --version

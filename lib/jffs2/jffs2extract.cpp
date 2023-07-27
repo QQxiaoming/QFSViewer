@@ -83,7 +83,7 @@ void freedir(struct dir *);
 void putblock(char *b, size_t bsize, size_t * rsize,
 		struct jffs2_raw_inode *n)
 {
-    ulong dlen = je32_to_cpu(n->dsize);
+    unsigned long dlen = je32_to_cpu(n->dsize);
 
 	if (je32_to_cpu(n->isize) > bsize || (je32_to_cpu(n->offset) + dlen) > bsize)
 		errmsg_die("File does not fit into buffer!");

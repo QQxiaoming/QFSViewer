@@ -67,6 +67,7 @@
 
 #elif defined(__WINDOWS__)
 
+#	include <windows.h>
 #	include <winsock2.h>
 #	include <sys/param.h>
 

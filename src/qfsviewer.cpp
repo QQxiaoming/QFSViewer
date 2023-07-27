@@ -1,5 +1,6 @@
 #include <QApplication>
 #include <QString>
+#include <iostream>
 
 #include "qfonticon.h"
 #include "mainwindow.h"
@@ -11,6 +12,12 @@ QString GIT_TAG =
 
 int main(int argc, char *argv[])
 {
+    if(argc == 2) {
+        if((!strncmp(argv[1],"--version",9)) | (!strncmp(argv[1],"-v",2)) ) {
+            std::cout << "QFSViewer " << VERSION.toStdString() << "\n" << GIT_TAG.toStdString() << "\n";
+            return 0;
+        }
+    }
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
