@@ -24,9 +24,9 @@ int main(int argc, char *argv[])
 #endif
     QApplication application(argc, argv);
 
-    QApplication::setApplicationName("Quard Star Board");
-    QApplication::setOrganizationName("Copyright (c) 2021 Quard(QiaoQiming)");
-    QApplication::setOrganizationDomain("https://github.com/QQxiaoming/quard_star_tutorial");
+    QApplication::setApplicationName("QFSViewer");
+    QApplication::setOrganizationName("Copyright (c) 2023 Quard(QiaoQiming)");
+    QApplication::setOrganizationDomain("https://github.com/QQxiaoming/QFSViewer");
     QApplication::setApplicationVersion(VERSION+" "+GIT_TAG);
 
     int text_hsv_value = QPalette().color(QPalette::WindowText).value();
