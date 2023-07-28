@@ -53,9 +53,9 @@ void MainWindow::on_pushButton_clicked()
     fsView->show();
     if(imgType == "jffs2") {
         fsView->setJffs2FSImgView(imgFile,0,info.size());
-    } else if(imgFile == "ext4") {
+    } else if(imgType == "ext4") {
         fsView->setExt4FSImgView(imgFile,0,info.size());
-    } else if(imgFile == "fatfs" ) {
+    } else if(imgType == "fatfs" ) {
         fsView->setFatFSImgView(imgFile,0,info.size());
     }
 }
@@ -83,9 +83,9 @@ void MainWindow::on_buttonBox_accepted()
     fsView->show();
     if(imgType == "jffs2") {
         fsView->setJffs2FSImgView(imgFile,0,info.size());
-    } else if(imgFile == "ext4") {
+    } else if(imgType == "ext4") {
         fsView->setExt4FSImgView(imgFile,0,info.size());
-    } else if(imgFile == "fatfs" ) {
+    } else if(imgType == "fatfs" ) {
         fsView->setFatFSImgView(imgFile,0,info.size());
     }
 }
