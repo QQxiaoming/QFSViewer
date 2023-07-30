@@ -13,7 +13,7 @@ QString GIT_TAG =
 int main(int argc, char *argv[])
 {
     if(argc == 2) {
-        if((!strncmp(argv[1],"--version",9)) | (!strncmp(argv[1],"-v",2)) ) {
+        if((!strncmp(argv[1],"--version",9)) || (!strncmp(argv[1],"-v",2)) ) {
             std::cout << "QFSViewer " << VERSION.toStdString() << "\n" << GIT_TAG.toStdString() << "\n";
             return 0;
         }

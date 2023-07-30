@@ -7,6 +7,7 @@
 #include <QApplication>
 #include <QDialog>
 #include <QMessageBox>
+#include <QFileInfo>
 #include <QDateTime>
 #include <QDate>
 #include <QTime>
@@ -125,6 +126,8 @@ public:
     void setExt4FSImgView(QString rootFSImgPath,uint64_t offset, uint64_t size) {
         resetView();
         setWindowTitle(rootFSImgPath);
+        QFileInfo fi(rootFSImgPath);
+        mode->set_root_timestamp((uint32_t)fi.birthTime().toUTC().toSecsSinceEpoch());
         QFile fs_img(rootFSImgPath);
         fs_img.open(QIODevice::ReadOnly);
         uint8_t *addr = fs_img.map(offset,size);
@@ -146,6 +149,8 @@ public:
     void setFatFSImgView(QString rootFSImgPath,uint64_t offset, uint64_t size) {
         resetView();
         setWindowTitle(rootFSImgPath);
+        QFileInfo fi(rootFSImgPath);
+        mode->set_root_timestamp((uint32_t)fi.birthTime().toUTC().toSecsSinceEpoch());
         QFile fs_img(rootFSImgPath);
         fs_img.open(QIODevice::ReadOnly);
         uint8_t *addr = fs_img.map(offset,size);
@@ -169,6 +174,8 @@ public:
     void setJffs2FSImgView(QString rootFSImgPath,uint64_t offset, uint64_t size) {
         resetView();
         setWindowTitle(rootFSImgPath);
+        QFileInfo fi(rootFSImgPath);
+        mode->set_root_timestamp((uint32_t)fi.birthTime().toUTC().toSecsSinceEpoch());
         QFile fs_img(rootFSImgPath);
         fs_img.open(QIODevice::ReadOnly);
         uint8_t *addr = fs_img.map(offset,size);
@@ -188,6 +195,7 @@ public:
 
     void resetView(void) {
         mode->removeTree(rootIndex);
+        mode->set_root_timestamp(0);
         rootIndex = mode->addTree("/", 0, 0, 0, QModelIndex());
         expand(rootIndex);
     }
