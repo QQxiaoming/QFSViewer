@@ -124,12 +124,13 @@ public:
     }
 
     void setExt4FSImgView(QString rootFSImgPath,uint64_t offset, uint64_t size) {
+        bool read_only = true;
         resetView();
         setWindowTitle(rootFSImgPath);
         QFileInfo fi(rootFSImgPath);
         mode->set_root_timestamp((uint32_t)fi.birthTime().toUTC().toSecsSinceEpoch());
         QFile fs_img(rootFSImgPath);
-        fs_img.open(QIODevice::ReadOnly);
+        fs_img.open(read_only?QIODevice::ReadOnly:QIODevice::ReadWrite);
         uint8_t *addr = fs_img.map(offset,size);
         if(addr[0x438] != 0x53 || addr[0x439] != 0xEF) {
             int ret = QMessageBox::warning(this,"Warning","Maybe not a ext4 filesystem. Do you want to force the execution, this may cause the program to crash.", QMessageBox::Yes, QMessageBox::No);
@@ -142,13 +143,17 @@ public:
         lwext_init(addr,size);
         struct ext4_blockdev * bd = ext4_blockdev_get();
         ext4_device_register(bd, "ext4_fs");
-        ext4_mount("ext4_fs", "/", true);
-	    ext4_recover("/");
-        ext4_journal_start("/");
-        ext4_cache_write_back("/", 1);
+        ext4_mount("ext4_fs", "/", read_only);
+        if(!read_only) {
+            ext4_recover("/");
+            ext4_journal_start("/");
+            ext4_cache_write_back("/", 1);
+        }
         listExt4FSAll("/",rootIndex);
-        ext4_cache_write_back("/", 0);
-        ext4_journal_stop("/");
+        if(!read_only) {
+            ext4_cache_write_back("/", 0);
+            ext4_journal_stop("/");
+        }
         ext4_umount("/");
         ext4_device_unregister("ext4_fs");
         fs_img.unmap(addr);
