@@ -2,7 +2,7 @@ name: windows
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, add_lwext4 ]
     paths-ignore:
       - 'doc/**'
       - 'README.md'

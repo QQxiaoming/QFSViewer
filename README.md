@@ -40,7 +40,7 @@ The current project is recommended to use version Qt6.2.0 or higher.
 ## Thanks
 
 - [QFontIcon](https://github.com/dridk/QFontIcon)
-- [ext4](https://github.com/ggetchev/pyext4)
+- [ext4](https://github.com/gkostka/lwext4)
 - [ff15](http://elm-chan.org/fsw/ff/00index_e.html)
 - [jffs2](https://github.com/rickardp/jffs2extract)
 - [treemodel.cpp](https://github.com/chocoball/QTreeViewTest)

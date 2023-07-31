@@ -27,9 +27,38 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::do_list_fs(const QString &imgFile)
+{
+    QMap<QString, QRadioButton *> fsTypeMap = {
+        {"jffs2", ui->radioButton_jffs2},
+        {"vfat", ui->radioButton_vfat},
+        {"exfat", ui->radioButton_exfat},
+        {"ext4", ui->radioButton_ext4},
+        {"ext3", ui->radioButton_ext3},
+        {"ext2", ui->radioButton_ext2},
+    };
+    QString imgType;
+    foreach (QString key, fsTypeMap.keys()) {
+        if(fsTypeMap[key]->isChecked()) {
+            imgType = key;
+            break;
+        }
+    }
+
+    QFileInfo info(imgFile);
+    this->hide();
+    fsView->show();
+    if(imgType == "jffs2") {
+        fsView->setJffs2FSImgView(imgFile,0,info.size());
+    } else if((imgType == "vfat") || (imgType == "exfat")) {
+        fsView->setFatFSImgView(imgFile,0,info.size());
+    } else if((imgType == "ext4") || (imgType == "ext3") || (imgType == "ext2")) {
+        fsView->setExt4FSImgView(imgFile,0,info.size());
+    }
+}
+
 void MainWindow::on_pushButton_clicked()
 {
-    QString imgType = "jffs2";
     QString originFile = ui->lineEdit->text();
     QString imgFile = QFileDialog::getOpenFileName(this, "Select image file", originFile.isEmpty()?QDir::homePath():originFile, "Image Files (*.data *.raw *.img *.bin *.img.gz *.bin.gz *.ext4 *.ext3 *.ext2 *.jffs2 *.vfat *.exfat);;All Files (*)" );
     if(imgFile.isEmpty()) {
@@ -42,61 +71,19 @@ void MainWindow::on_pushButton_clicked()
     }
     ui->lineEdit->setText(imgFile);
 
-    if(ui->radioButton_jffs2->isChecked()) {
-        imgType = "jffs2";
-    } else if(ui->radioButton_ext4->isChecked()) {
-        imgType = "ext4";
-    } else if(ui->radioButton_vfat->isChecked()) {
-        imgType = "vfat";
-    } else if(ui->radioButton_exfat->isChecked()) {
-        imgType = "exfat";
-    }
-
-    this->hide();
-    fsView->show();
-    if(imgType == "jffs2") {
-        fsView->setJffs2FSImgView(imgFile,0,info.size());
-    } else if(imgType == "ext4") {
-        fsView->setExt4FSImgView(imgFile,0,info.size());
-    } else if(imgType == "vfat" ) {
-        fsView->setFatFSImgView(imgFile,0,info.size());
-    } else if(imgType == "exfat" ) {
-        fsView->setFatFSImgView(imgFile,0,info.size());
-    }
+    do_list_fs(imgFile);
 }
 
 
 void MainWindow::on_buttonBox_accepted()
 {
-    QString imgType = "jffs2";
     QString imgFile = ui->lineEdit->text();
     QFileInfo info(imgFile);
     if(!info.exists() || !info.isFile()) {
         QMessageBox::warning(this, "Error", "File not exist!");
         return;
     }
-
-    if(ui->radioButton_jffs2->isChecked()) {
-        imgType = "jffs2";
-    } else if(ui->radioButton_ext4->isChecked()) {
-        imgType = "ext4";
-    } else if(ui->radioButton_vfat->isChecked()) {
-        imgType = "vfat";
-    } else if(ui->radioButton_exfat->isChecked()) {
-        imgType = "exfat";
-    }
-
-    this->hide();
-    fsView->show();
-    if(imgType == "jffs2") {
-        fsView->setJffs2FSImgView(imgFile,0,info.size());
-    } else if(imgType == "ext4") {
-        fsView->setExt4FSImgView(imgFile,0,info.size());
-    } else if(imgType == "vfat" ) {
-        fsView->setFatFSImgView(imgFile,0,info.size());
-    } else if(imgType == "exfat" ) {
-        fsView->setFatFSImgView(imgFile,0,info.size());
-    }
+    do_list_fs(imgFile);
 }
 
 
