@@ -13,8 +13,8 @@
 #include <QTime>
 
 #include "jffs2extract.h"
-#include "ext4_module.h"
 #include "ff.h"
+#include "blockdev_port.h"
 #include "treemodel.h"
 
 class FSViewWindow : public QTreeView
@@ -139,9 +139,18 @@ public:
                 return;
             }
         }
-        ext4_init(addr,size);
+        lwext_init(addr,size);
+        struct ext4_blockdev * bd = ext4_blockdev_get();
+        ext4_device_register(bd, "ext4_fs");
+        ext4_mount("ext4_fs", "/", true);
+	    ext4_recover("/");
+        ext4_journal_start("/");
+        ext4_cache_write_back("/", 1);
         listExt4FSAll("/",rootIndex);
-        ext4_close();
+        ext4_cache_write_back("/", 0);
+        ext4_journal_stop("/");
+        ext4_umount("/");
+        ext4_device_unregister("ext4_fs");
         fs_img.unmap(addr);
         fs_img.close();
     }
@@ -213,39 +222,53 @@ private:
         FSView_LAST
     };
     void listExt4FSAll(QString path, QModelIndex index) {
-        uint64_t msize = ext4_list_contents(path.toStdString().c_str(), NULL);
-        uint8_t *mdata = new uint8_t[msize];
-        ext4_list_contents(path.toStdString().c_str(), mdata);
-        uint8_t * p = mdata;
-        while(p != (mdata + msize)) {
-            struct ext4_ino_usr_map * mm = (struct ext4_ino_usr_map *) p;
-            QString filename(QByteArray(mm->name,mm->size));
-            switch(mm->type) {
-                case FSView_DIR :
+	    const ext4_direntry *de;
+	    ext4_dir d;
+        ext4_dir_open(&d, path.toStdString().c_str());
+        de = ext4_dir_entry_next(&d);
+        while (de) {
+            uint32_t timestamp = 0;
+            QString filename(QByteArray((const char*)de->name,de->name_length));
+            if(filename == "." || filename == "..") {
+                de = ext4_dir_entry_next(&d);
+                continue;
+            }
+            QString filePath;
+            if(path != "/")
+                filePath = path + "/" + filename;
+            else
+                filePath = "/" + filename;
+            ext4_ctime_get(filePath.toStdString().c_str(),&timestamp);
+            switch(de->inode_type) {
+                case FSView_REG_FILE:
                 {
-                    QModelIndex modelIndex = mode->addTree(filename, mm->type, 0, mm->ctime, index);
+                    ext4_file fd;
+	                ext4_fopen(&fd, filePath.toStdString().c_str(), "rb");
+                    uint32_t size = ext4_fsize(&fd);
+                    ext4_fclose(&fd);
+                    mode->addTree(filename, de->inode_type, size, timestamp, index);
+                    break;
+                }
+                case FSView_FIFO:
+                case FSView_CHARDEV:
+                case FSView_BLOCKDEV:
+                case FSView_SYMLINK:
+                case FSView_SOCKET:
+                default:
+                    mode->addTree(filename, de->inode_type, 0, timestamp, index);
+                    break;
+                case FSView_DIR:
+                    QModelIndex modelIndex = mode->addTree(filename, de->inode_type, 0, timestamp, index);
                     if(path != "/")
                         listExt4FSAll(path + "/" + filename, modelIndex);
                     else
                         listExt4FSAll("/" + filename, modelIndex);
                     break;
-                }
-                case FSView_REG_FILE :
-                default :
-                {
-                    uint64_t rsize = ext4_get_contents(mm->ino, NULL);
-                    uint8_t *rdata = new uint8_t[rsize];
-                    ext4_get_contents(mm->ino, rdata);
-                    uint64_t size = *(uint64_t *)(rdata+8);
-                    mode->addTree(filename, mm->type, size, mm->ctime, index);
-                    free(rdata);
-                    break;
-                }
             }
-            
-            p += sizeof(struct ext4_ino_usr_map) + mm->size;
+
+            de = ext4_dir_entry_next(&d);
         }
-        delete [] mdata;
+        ext4_dir_close(&d);
         qApp->processEvents();
     }
     

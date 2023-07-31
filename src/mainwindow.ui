@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>513</width>
-    <height>213</height>
+    <width>373</width>
+    <height>276</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,33 +21,55 @@
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QRadioButton" name="radioButton_jffs2">
-        <property name="text">
-         <string>JFFS2</string>
-        </property>
-       </widget>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QRadioButton" name="radioButton_jffs2">
+          <property name="text">
+           <string>JFFS2</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="radioButton_vfat">
+          <property name="text">
+           <string>VFAT</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="radioButton_exfat">
+          <property name="text">
+           <string>EXFAT</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
       <item>
-       <widget class="QRadioButton" name="radioButton_ext4">
-        <property name="text">
-         <string>EXT4</string>
-        </property>
-       </widget>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QRadioButton" name="radioButton_ext4">
+          <property name="text">
+           <string>EXT4</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="radioButton_ext3">
+          <property name="text">
+           <string>EXT3</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="radioButton_ext2">
+          <property name="text">
+           <string>EXT2</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
-      <item>
-       <widget class="QRadioButton" name="radioButton_vfat">
-        <property name="text">
-         <string>VFAT</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-        <widget class="QRadioButton" name="radioButton_exfat">
-         <property name="text">
-          <string>EXFAT</string>
-         </property>
-        </widget>
-       </item>
      </layout>
     </widget>
    </item>

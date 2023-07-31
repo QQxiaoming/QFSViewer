@@ -25,7 +25,7 @@ DEFINES += APP_VERSION="\\\"V$${QFSVIEWER_VERSION}\\\""
 CONFIG += c++11
 
 include(./lib/QFontIcon/QFontIcon.pri)
-include(./lib/ext4/ext4.pri)
+include(./lib/lwext4/lwext4.pri)
 include(./lib/ff15/ff15.pri)
 include(./lib/jffs2/jffs2.pri)
 
