@@ -29,7 +29,7 @@ QFSViewer is a small tool for developers to view the contents of various file sy
 
 Currently supported formats include:
 
-jffs2\ext4\fatfs
+jffs2\vfat\exfat\ext4\ext3\ext2
 
 ## Contributing
 
