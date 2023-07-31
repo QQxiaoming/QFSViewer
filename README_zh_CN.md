@@ -29,7 +29,7 @@ QFSViewer一款用于开发人员查看各种文件系统原始映像文件内�
 
 目前支持格式包括：
 
-jffs2\vfat\exfat\ext4\ext3\ext2
+jffs2\fat12\fat16\fat32\exfat\ext4\ext3\ext2
 
 ## 贡献
 
@@ -40,7 +40,7 @@ jffs2\vfat\exfat\ext4\ext3\ext2
 ## 感谢
 
 - [QFontIcon](https://github.com/dridk/QFontIcon)
-- [ext4](https://github.com/gkostka/lwext4)
+- [lwext4](https://github.com/gkostka/lwext4)
 - [ff15](http://elm-chan.org/fsw/ff/00index_e.html)
-- [jffs2](https://github.com/rickardp/jffs2extract)
+- [jffs2extract](https://github.com/rickardp/jffs2extract)
 - [treemodel.cpp](https://github.com/chocoball/QTreeViewTest)

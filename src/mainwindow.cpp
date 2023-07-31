@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
     fsView = new FSViewWindow(this);
     ui->radioButton_jffs2->setChecked(true);
     ui->radioButton_ext4->setChecked(false);
-    ui->radioButton_vfat->setChecked(false);
+    ui->radioButton_fat->setChecked(false);
     ui->radioButton_exfat->setChecked(false);
     ui->lineEdit->setText("/home/qqm/Downloads/work/qfsviewer/test");
 }
@@ -31,7 +31,7 @@ void MainWindow::do_list_fs(const QString &imgFile)
 {
     QMap<QString, QRadioButton *> fsTypeMap = {
         {"jffs2", ui->radioButton_jffs2},
-        {"vfat", ui->radioButton_vfat},
+        {"fatX", ui->radioButton_fat},
         {"exfat", ui->radioButton_exfat},
         {"ext4", ui->radioButton_ext4},
         {"ext3", ui->radioButton_ext3},
@@ -50,7 +50,7 @@ void MainWindow::do_list_fs(const QString &imgFile)
     fsView->show();
     if(imgType == "jffs2") {
         fsView->setJffs2FSImgView(imgFile,0,info.size());
-    } else if((imgType == "vfat") || (imgType == "exfat")) {
+    } else if((imgType == "fatX") || (imgType == "exfat")) {
         fsView->setFatFSImgView(imgFile,0,info.size());
     } else if((imgType == "ext4") || (imgType == "ext3") || (imgType == "ext2")) {
         fsView->setExt4FSImgView(imgFile,0,info.size());
@@ -60,7 +60,7 @@ void MainWindow::do_list_fs(const QString &imgFile)
 void MainWindow::on_pushButton_clicked()
 {
     QString originFile = ui->lineEdit->text();
-    QString imgFile = QFileDialog::getOpenFileName(this, "Select image file", originFile.isEmpty()?QDir::homePath():originFile, "Image Files (*.data *.raw *.img *.bin *.img.gz *.bin.gz *.ext4 *.ext3 *.ext2 *.jffs2 *.vfat *.exfat);;All Files (*)" );
+    QString imgFile = QFileDialog::getOpenFileName(this, "Select image file", originFile.isEmpty()?QDir::homePath():originFile, "Image Files (*.data *.raw *.img *.bin *.img.gz *.bin.gz *.ext4 *.ext3 *.ext2 *.jffs2 *.fat* *.exfat);;All Files (*)" );
     if(imgFile.isEmpty()) {
         return;
     }

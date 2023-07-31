@@ -25,21 +25,21 @@
         <item>
          <widget class="QRadioButton" name="radioButton_jffs2">
           <property name="text">
-           <string>JFFS2</string>
+           <string>jffs2</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="radioButton_vfat">
+         <widget class="QRadioButton" name="radioButton_fat">
           <property name="text">
-           <string>VFAT</string>
+           <string>fatX(12/16/32)</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QRadioButton" name="radioButton_exfat">
           <property name="text">
-           <string>EXFAT</string>
+           <string>exfat</string>
           </property>
          </widget>
         </item>
@@ -50,21 +50,21 @@
         <item>
          <widget class="QRadioButton" name="radioButton_ext4">
           <property name="text">
-           <string>EXT4</string>
+           <string>ext4</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QRadioButton" name="radioButton_ext3">
           <property name="text">
-           <string>EXT3</string>
+           <string>ext3</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QRadioButton" name="radioButton_ext2">
           <property name="text">
-           <string>EXT2</string>
+           <string>ext2</string>
           </property>
          </widget>
         </item>
