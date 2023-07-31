@@ -37,8 +37,6 @@ jobs:
           Choco-Install -PackageName innosetup --force
           Choco-Install -PackageName cmake --force
 
-      - uses: msys2/setup-msys2@v2
-
       - name: Build all
         run: |
           git fetch --tags --force
