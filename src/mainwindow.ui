@@ -21,26 +21,33 @@
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QRadioButton" name="radioButton">
+       <widget class="QRadioButton" name="radioButton_jffs2">
         <property name="text">
          <string>JFFS2</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QRadioButton" name="radioButton_2">
+       <widget class="QRadioButton" name="radioButton_ext4">
         <property name="text">
          <string>EXT4</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QRadioButton" name="radioButton_3">
+       <widget class="QRadioButton" name="radioButton_vfat">
         <property name="text">
-         <string>FATFS</string>
+         <string>VFAT</string>
         </property>
        </widget>
       </item>
+      <item>
+        <widget class="QRadioButton" name="radioButton_exfat">
+         <property name="text">
+          <string>EXFAT</string>
+         </property>
+        </widget>
+       </item>
      </layout>
     </widget>
    </item>

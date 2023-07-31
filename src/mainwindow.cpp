@@ -14,10 +14,11 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowTitle("FSView");
 
     fsView = new FSViewWindow(this);
-    ui->radioButton->setChecked(true);
-    ui->radioButton_2->setChecked(false);
-    ui->radioButton_3->setChecked(false);
-    ui->lineEdit->setText(QDir::homePath());
+    ui->radioButton_jffs2->setChecked(true);
+    ui->radioButton_ext4->setChecked(false);
+    ui->radioButton_vfat->setChecked(false);
+    ui->radioButton_exfat->setChecked(false);
+    ui->lineEdit->setText("/home/qqm/Downloads/work/qfsviewer/test");
 }
 
 MainWindow::~MainWindow()
@@ -30,7 +31,7 @@ void MainWindow::on_pushButton_clicked()
 {
     QString imgType = "jffs2";
     QString originFile = ui->lineEdit->text();
-    QString imgFile = QFileDialog::getOpenFileName(this, "Select image file", originFile.isEmpty()?QDir::homePath():originFile , "image files(*.data *.raw *.img *.bin *.img.gz *.bin.gz *.jffs2 *.ext4 *.fatfs)");
+    QString imgFile = QFileDialog::getOpenFileName(this, "Select image file", originFile.isEmpty()?QDir::homePath():originFile, "Image Files (*.data *.raw *.img *.bin *.img.gz *.bin.gz *.ext4 *.ext3 *.ext2 *.jffs2 *.vfat *.exfat);;All Files (*)" );
     if(imgFile.isEmpty()) {
         return;
     }
@@ -41,12 +42,14 @@ void MainWindow::on_pushButton_clicked()
     }
     ui->lineEdit->setText(imgFile);
 
-    if(ui->radioButton->isChecked()) {
+    if(ui->radioButton_jffs2->isChecked()) {
         imgType = "jffs2";
-    } else if(ui->radioButton_2->isChecked()) {
+    } else if(ui->radioButton_ext4->isChecked()) {
         imgType = "ext4";
-    } else if(ui->radioButton_3->isChecked()) {
-        imgType = "fatfs";
+    } else if(ui->radioButton_vfat->isChecked()) {
+        imgType = "vfat";
+    } else if(ui->radioButton_exfat->isChecked()) {
+        imgType = "exfat";
     }
 
     this->hide();
@@ -55,7 +58,9 @@ void MainWindow::on_pushButton_clicked()
         fsView->setJffs2FSImgView(imgFile,0,info.size());
     } else if(imgType == "ext4") {
         fsView->setExt4FSImgView(imgFile,0,info.size());
-    } else if(imgType == "fatfs" ) {
+    } else if(imgType == "vfat" ) {
+        fsView->setFatFSImgView(imgFile,0,info.size());
+    } else if(imgType == "exfat" ) {
         fsView->setFatFSImgView(imgFile,0,info.size());
     }
 }
@@ -71,12 +76,14 @@ void MainWindow::on_buttonBox_accepted()
         return;
     }
 
-    if(ui->radioButton->isChecked()) {
+    if(ui->radioButton_jffs2->isChecked()) {
         imgType = "jffs2";
-    } else if(ui->radioButton_2->isChecked()) {
+    } else if(ui->radioButton_ext4->isChecked()) {
         imgType = "ext4";
-    } else if(ui->radioButton_3->isChecked()) {
-        imgType = "fatfs";
+    } else if(ui->radioButton_vfat->isChecked()) {
+        imgType = "vfat";
+    } else if(ui->radioButton_exfat->isChecked()) {
+        imgType = "exfat";
     }
 
     this->hide();
@@ -85,7 +92,9 @@ void MainWindow::on_buttonBox_accepted()
         fsView->setJffs2FSImgView(imgFile,0,info.size());
     } else if(imgType == "ext4") {
         fsView->setExt4FSImgView(imgFile,0,info.size());
-    } else if(imgType == "fatfs" ) {
+    } else if(imgType == "vfat" ) {
+        fsView->setFatFSImgView(imgFile,0,info.size());
+    } else if(imgType == "exfat" ) {
         fsView->setFatFSImgView(imgFile,0,info.size());
     }
 }
