@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->radioButton_ext4->setChecked(false);
     ui->radioButton_fat->setChecked(false);
     ui->radioButton_exfat->setChecked(false);
-    ui->lineEdit->setText("/home/qqm/Downloads/work/qfsviewer/test");
+    ui->lineEdit->setText(QDir::homePath());
 }
 
 MainWindow::~MainWindow()
