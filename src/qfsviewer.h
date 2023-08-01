@@ -230,7 +230,7 @@ public:
         expand(rootIndex);
     }
 
-    void exportExt4FSImg(QString rootFSImgPath,uint64_t offset, uint64_t size, QString input, QString output) {
+    int exportExt4FSImg(QString rootFSImgPath,uint64_t offset, uint64_t size, QString input, QString output) {
         bool read_only = true;
         QFile fs_img(rootFSImgPath);
         fs_img.open(read_only?QIODevice::ReadOnly:QIODevice::ReadWrite);
@@ -269,9 +269,10 @@ public:
         ext4_device_unregister("ext4_fs");
         fs_img.unmap(addr);
         fs_img.close();
+        return 0;
     }
 
-    void exportFatFSImg(QString rootFSImgPath,uint64_t offset, uint64_t size, QString input, QString output) {
+    int exportFatFSImg(QString rootFSImgPath,uint64_t offset, uint64_t size, QString input, QString output) {
         QFile fs_img(rootFSImgPath);
         fs_img.open(QIODevice::ReadOnly);
         uint8_t *addr = fs_img.map(offset,size);
@@ -298,6 +299,62 @@ public:
         f_mount(NULL,"",0);
         fs_img.unmap(addr);
         fs_img.close();
+        return 0;
+    }
+    
+    int exportJFFS2Img(QString rootFSImgPath,uint64_t offset, uint64_t size, QString input, QString output) {
+        QFile fs_img(rootFSImgPath);
+        QFileInfo input_info(input);
+        QString input_path = input_info.absolutePath();
+        QString input_name = input_info.fileName();
+        fs_img.open(QIODevice::ReadOnly);
+        uint8_t *addr = fs_img.map(offset,size);
+        QFile w(output);
+        w.open(QIODevice::WriteOnly|QIODevice::Truncate);
+        jffs2_init(addr,size);
+
+        struct jffs2_raw_dirent *dd;
+        struct dir *d = NULL;
+        uint32_t ino;
+        dd = resolvepath(1, input_path.toStdString().c_str(), &ino);
+        if (ino == 0 || (dd == NULL && ino == 0))
+            qWarning("No such file or directory");
+        else if ((dd == NULL && ino != 0) || (dd != NULL && dd->type == 4)) {
+            d = collectdir( ino, d);
+            struct jffs2_raw_inode *ri, *tmpi;
+            while (d != NULL) {
+                ri = find_raw_inode( d->ino, 0);
+                if (!ri) {
+                    qWarning("bug: raw_inode missing!");
+                    d = d->next;
+                    continue;
+                }
+
+                tmpi = ri;
+                while (tmpi) {
+                    tmpi = find_raw_inode(d->ino, je32_to_cpu(tmpi->version));
+                }
+                QString filename(QByteArray(d->name,d->nsize));
+                if(d->type == 8) {
+                    if(filename == input_name) {
+                        while(ri) {
+                            size_t sz;
+                            uint8_t *buf = new uint8_t[16384];
+                            putblock((char *)buf, 16384, &sz, ri);
+                            w.write((const char*)buf,sz);
+                            delete[] buf;
+                            ri = find_raw_inode(d->ino, je32_to_cpu(ri->version));
+                        }
+                    }
+                }
+                d = d->next;
+            }
+            freedir(d);
+        }
+        w.close();
+        fs_img.unmap(addr);
+        fs_img.close();
+        return 0;
     }
 
 private:
@@ -490,18 +547,25 @@ protected:
                         if (filename.isEmpty())
                             return;
                         QFileInfo info(this->windowTitle());
+                        int ret = -1;
                         switch(fsType) {
                             case 0:
-                                exportExt4FSImg(this->windowTitle(), 0, info.size(), path, filename);
+                                ret = exportExt4FSImg(this->windowTitle(), 0, info.size(), path, filename);
                                 break;
                             case 1:
-                                exportFatFSImg(this->windowTitle(), 0, info.size(), path, filename);
+                                ret = exportFatFSImg(this->windowTitle(), 0, info.size(), path, filename);
                                 break;
                             case 2:
-                                QMessageBox::critical(this, tr("Error"), tr("Can't export jffs2 file!"));
+                                ret = exportJFFS2Img(this->windowTitle(), 0, info.size(), path, filename);
                                 break;
                             default:
                                 break;
+                        }
+                        if(ret == 0) {
+                            QMessageBox::information(this, tr("Information"), tr("Export file success!"));
+                        } else {
+                            QMessageBox::critical(this, tr("Error"), tr("Can't export file!"));
+                            return;
                         }
                     } else {
                         QMessageBox::critical(this, tr("Error"), tr("Can't export file!"));
