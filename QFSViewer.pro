@@ -37,11 +37,13 @@ INCLUDEPATH += \
 SOURCES += \
         src/mainwindow.cpp \
         src/qfsviewer.cpp \
+        src/configFile.cpp \
         src/treemodel.cpp
 
 HEADERS += \
         src/mainwindow.h \
         src/qfsviewer.h \
+        src/configFile.h \
         src/treemodel.h
 
 FORMS += \

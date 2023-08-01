@@ -17,11 +17,16 @@
 #include "blockdev_port.h"
 #include "treemodel.h"
 
+const static QString VERSION = APP_VERSION;
+const static QString GIT_TAG =
+#include "git_tag.inc"
+;
+
 class FSViewWindow : public QTreeView
 {
     Q_OBJECT
 public:
- explicit FSViewWindow(QDialog *parent = nullptr) :
+ explicit FSViewWindow(QWidget *parent = nullptr) :
         QTreeView(nullptr) {
         mode = new TreeModel(this);
         setModel(mode);
@@ -34,6 +39,9 @@ public:
         setColumnWidth(2,80);
         setColumnWidth(3,150);
         resize(QSize(800,600));
+        QRect screen = QGuiApplication::screenAt(this->mapToGlobal(QPoint(this->width()/2,0)))->geometry();
+        QRect size = this->geometry();
+        this->move((screen.width() - size.width()) / 2, (screen.height() - size.height()) / 2);
         m_parent = parent;
     }
 
@@ -376,7 +384,7 @@ protected:
 
 private:
     TreeModel *mode;
-    QDialog *m_parent;
+    QWidget *m_parent;
     QModelIndex rootIndex;
 };
 

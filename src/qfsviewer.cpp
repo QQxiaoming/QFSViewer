@@ -5,11 +5,6 @@
 #include "qfonticon.h"
 #include "mainwindow.h"
 
-QString VERSION = APP_VERSION;
-QString GIT_TAG =
-#include "git_tag.inc"
-;
-
 int main(int argc, char *argv[])
 {
     if(argc == 2) {

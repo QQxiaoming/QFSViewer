@@ -7,29 +7,19 @@
 #include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
-    QDialog(parent),
+    QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
     setWindowTitle("FSView");
+    
+    QRect screen = QGuiApplication::screenAt(this->mapToGlobal(QPoint(this->width()/2,0)))->geometry();
+    QRect size = this->geometry();
+    this->move((screen.width() - size.width()) / 2, (screen.height() - size.height()) / 2);
 
     fsView = new FSViewWindow(this);
-    ui->radioButton_jffs2->setChecked(true);
-    ui->radioButton_ext4->setChecked(false);
-    ui->radioButton_fat->setChecked(false);
-    ui->radioButton_exfat->setChecked(false);
-    ui->lineEdit->setText(QDir::homePath());
-}
 
-MainWindow::~MainWindow()
-{
-    delete fsView;
-    delete ui;
-}
-
-void MainWindow::do_list_fs(const QString &imgFile)
-{
-    QMap<QString, QRadioButton *> fsTypeMap = {
+    fsTypeMap = {
         {"jffs2", ui->radioButton_jffs2},
         {"fatX", ui->radioButton_fat},
         {"exfat", ui->radioButton_exfat},
@@ -37,6 +27,40 @@ void MainWindow::do_list_fs(const QString &imgFile)
         {"ext3", ui->radioButton_ext3},
         {"ext2", ui->radioButton_ext2},
     };
+
+    QFileInfo dir(QDir::homePath()+"/.QFSViewer");
+    if(!dir.isDir()) {
+        if(!dir.isFile()) {
+            QDir mkdir(QDir::homePath());
+            mkdir.mkdir(".QFSViewer");
+        }
+    }
+
+    QFSViewerConfigFile = new ConfigFile(QDir::homePath()+"/.QFSViewer/QFSViewer.xml");
+    if(QFSViewerConfigFile->config_dict.lastPath.isEmpty()) {
+        ui->lineEdit->setText(QDir::homePath());
+    } else {
+        ui->lineEdit->setText(QFSViewerConfigFile->config_dict.lastPath);
+    }
+
+    foreach (QString key, fsTypeMap.keys()) {
+        if(QFSViewerConfigFile->config_dict.fsType == key) {
+            fsTypeMap[key]->setChecked(true);
+        } else {
+            fsTypeMap[key]->setChecked(false);
+        }
+    }
+}
+
+MainWindow::~MainWindow()
+{
+    delete QFSViewerConfigFile;
+    delete fsView;
+    delete ui;
+}
+
+void MainWindow::do_list_fs(const QString &imgFile)
+{
     QString imgType;
     foreach (QString key, fsTypeMap.keys()) {
         if(fsTypeMap[key]->isChecked()) {
@@ -44,6 +68,9 @@ void MainWindow::do_list_fs(const QString &imgFile)
             break;
         }
     }
+
+    QFSViewerConfigFile->config_dict.lastPath = imgFile;
+    QFSViewerConfigFile->config_dict.fsType = imgType;
 
     QFileInfo info(imgFile);
     this->hide();
@@ -90,5 +117,35 @@ void MainWindow::on_buttonBox_accepted()
 void MainWindow::on_buttonBox_rejected()
 {
     qApp->exit();
+}
+
+void MainWindow::on_actionHelp_triggered()
+{
+    QMessageBox::question(this, "Help", 
+        "1.主界面选择数据参数。\n"
+        "2.点击打开文件或文件夹将进行固件映像数据解析并显示解析结果。\n",
+         QMessageBox::StandardButtons(QMessageBox::Ok));
+}
+
+void MainWindow::on_actionAbout_triggered()
+{
+    QMessageBox::about(this, tr("About"),
+        tr(
+            "<p>Version</p>"
+            "<p>&nbsp;%1</p>"
+            "<p>Commit</p>"
+            "<p>&nbsp;%2</p>"
+            "<p>Author</p>"
+            "<p>&nbsp;qiaoqm@aliyun.com</p>"
+            "<p>Website</p>"
+            "<p>&nbsp;<a href='https://github.com/QQxiaoming/QFSViewer'>https://github.com/QQxiaoming</p>"
+            "<p>&nbsp;<a href='https://gitee.com/QQxiaoming/QFSViewer'>https://gitee.com/QQxiaoming</a></p>"
+        ).arg(VERSION,GIT_TAG)
+    );
+}
+
+void MainWindow::on_actionAboutQt_triggered()
+{
+    QMessageBox::aboutQt(this);
 }
 
