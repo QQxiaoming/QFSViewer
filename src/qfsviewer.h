@@ -11,11 +11,15 @@
 #include <QDateTime>
 #include <QDate>
 #include <QTime>
+#include <QMenu>
+#include <QFileDialog>
 
 #include "jffs2extract.h"
 #include "ff.h"
 #include "blockdev_port.h"
 #include "treemodel.h"
+
+#include "qfonticon.h"
 
 const static QString VERSION = APP_VERSION;
 const static QString GIT_TAG =
@@ -134,6 +138,7 @@ public:
     void setExt4FSImgView(QString rootFSImgPath,uint64_t offset, uint64_t size) {
         bool read_only = true;
         resetView();
+        fsType = 0;
         setWindowTitle(rootFSImgPath);
         QFileInfo fi(rootFSImgPath);
         mode->set_root_timestamp((uint32_t)fi.birthTime().toUTC().toSecsSinceEpoch());
@@ -170,6 +175,7 @@ public:
 
     void setFatFSImgView(QString rootFSImgPath,uint64_t offset, uint64_t size) {
         resetView();
+        fsType = 1;
         setWindowTitle(rootFSImgPath);
         QFileInfo fi(rootFSImgPath);
         mode->set_root_timestamp((uint32_t)fi.birthTime().toUTC().toSecsSinceEpoch());
@@ -195,6 +201,7 @@ public:
 
     void setJffs2FSImgView(QString rootFSImgPath,uint64_t offset, uint64_t size) {
         resetView();
+        fsType = 2;
         setWindowTitle(rootFSImgPath);
         QFileInfo fi(rootFSImgPath);
         mode->set_root_timestamp((uint32_t)fi.birthTime().toUTC().toSecsSinceEpoch());
@@ -216,10 +223,81 @@ public:
     }
 
     void resetView(void) {
+        fsType = 0;
         mode->removeTree(rootIndex);
         mode->set_root_timestamp(0);
         rootIndex = mode->addTree("/", 0, 0, 0, QModelIndex());
         expand(rootIndex);
+    }
+
+    void exportExt4FSImg(QString rootFSImgPath,uint64_t offset, uint64_t size, QString input, QString output) {
+        bool read_only = true;
+        QFile fs_img(rootFSImgPath);
+        fs_img.open(read_only?QIODevice::ReadOnly:QIODevice::ReadWrite);
+        uint8_t *addr = fs_img.map(offset,size);
+        lwext_init(addr,size);
+        struct ext4_blockdev * bd = ext4_blockdev_get();
+        ext4_device_register(bd, "ext4_fs");
+        ext4_mount("ext4_fs", "/", read_only);
+        if(!read_only) {
+            ext4_recover("/");
+            ext4_journal_start("/");
+            ext4_cache_write_back("/", 1);
+        }
+        ext4_file f;
+        ext4_fopen(&f, input.toStdString().c_str(), "rb");
+        QFile w(output);
+        w.open(QIODevice::WriteOnly|QIODevice::Truncate);
+        uint8_t *buf = new uint8_t[4096];
+        do {
+            size_t byte = 0;
+            ext4_fread(&f, buf, 4096, &byte);
+            if(byte == 0) {
+                break;
+            } else {
+                w.write((const char*)buf,byte);
+            }
+        } while(1);
+        delete[] buf;
+        w.close();
+        ext4_fclose(&f);
+        if(!read_only) {
+            ext4_cache_write_back("/", 0);
+            ext4_journal_stop("/");
+        }
+        ext4_umount("/");
+        ext4_device_unregister("ext4_fs");
+        fs_img.unmap(addr);
+        fs_img.close();
+    }
+
+    void exportFatFSImg(QString rootFSImgPath,uint64_t offset, uint64_t size, QString input, QString output) {
+        QFile fs_img(rootFSImgPath);
+        fs_img.open(QIODevice::ReadOnly);
+        uint8_t *addr = fs_img.map(offset,size);
+        ff_init(addr,size);
+        FATFS FatFs;
+        f_mount(&FatFs,"",0);
+        FIL f;
+        f_open(&f, input.toStdString().c_str(), FA_READ);
+        QFile w(output);
+        w.open(QIODevice::WriteOnly|QIODevice::Truncate);
+        uint8_t *buf = new uint8_t[4096];
+        do {
+            UINT byte = 0;
+            f_read(&f, buf, 4096, &byte);
+            if(byte == 0) {
+                break;
+            } else {
+                w.write((const char*)buf,byte);
+            }
+        } while(1);
+        delete[] buf;
+        w.close();
+        f_close(&f);
+        f_mount(NULL,"",0);
+        fs_img.unmap(addr);
+        fs_img.close();
     }
 
 private:
@@ -376,7 +454,71 @@ private:
     }
 
 protected:
-    void closeEvent(QCloseEvent *event) {
+    void contextMenuEvent(QContextMenuEvent *event) override {
+        QModelIndex tIndex = indexAt(viewport()->mapFromGlobal(event->globalPos()));
+        if (tIndex.isValid()) {
+            QMenu *menu = new QMenu(this);
+            menu->setAttribute(Qt::WA_DeleteOnClose);
+            QAction *pExport= new QAction(tr("Export"), this);
+            pExport->setIcon(QIcon(QFontIcon::icon(QChar(0xf019))));
+            menu->addAction(pExport);
+            connect(pExport,&QAction::triggered,this,
+                [&,tIndex](void)
+                {
+                    QString name;
+                    int type = FSView_UNKNOWN;
+                    mode->info(tIndex, type, name);
+                    std::function<QModelIndex(QModelIndex,QString &)> get_parent = [&](QModelIndex index, QString &name) -> QModelIndex {
+                        if(index.isValid() && index.parent().isValid()) {
+                            QString pname;
+                            int type = FSView_UNKNOWN;
+                            QModelIndex parent = index.parent();
+                            mode->info(parent, type, pname);
+                            name = (pname == "/")?(pname + name):(pname + "/" + name);
+                            return get_parent(parent, name);
+                        } else {
+                            return QModelIndex();
+                        }
+                    };
+                    QString path = name;
+                    get_parent(tIndex, path);
+                    if(type == FSView_DIR) {
+                        QMessageBox::critical(this, tr("Error"), tr("Can't export directory!"));
+                        return;
+                    } else if(type == FSView_REG_FILE) {
+                        QString filename = QFileDialog::getSaveFileName(this, tr("Save File"), name);
+                        if (filename.isEmpty())
+                            return;
+                        QFileInfo info(this->windowTitle());
+                        switch(fsType) {
+                            case 0:
+                                exportExt4FSImg(this->windowTitle(), 0, info.size(), path, filename);
+                                break;
+                            case 1:
+                                exportFatFSImg(this->windowTitle(), 0, info.size(), path, filename);
+                                break;
+                            case 2:
+                                QMessageBox::critical(this, tr("Error"), tr("Can't export jffs2 file!"));
+                                break;
+                            default:
+                                break;
+                        }
+                    } else {
+                        QMessageBox::critical(this, tr("Error"), tr("Can't export file!"));
+                        return;
+                    }
+                }
+            );
+            if(!menu->isEmpty()) {
+                menu->move(cursor().pos());
+                menu->show();
+            }
+
+        }
+        event->accept();
+    }
+
+    void closeEvent(QCloseEvent *event) override {
         m_parent->show();
         this->hide();
         event->ignore();
@@ -384,6 +526,7 @@ protected:
 
 private:
     TreeModel *mode;
+    int fsType;
     QWidget *m_parent;
     QModelIndex rootIndex;
 };
