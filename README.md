@@ -32,6 +32,10 @@ Currently supported formats include:
 
 jffs2\fat12\fat16\fat32\exfat\ext4\ext3\ext2
 
+## Build
+
+　> [Build documentation](./DEVELOPNOTE.md)
+
 ## Contributing
 
 If you have suggestions or ideas for this project, please submit issues and pull requests on GitHub or Gitee.

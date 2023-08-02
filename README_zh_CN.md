@@ -32,6 +32,10 @@ QFSViewer一款用于开发人员查看各种文件系统原始映像文件内�
 
 jffs2\fat12\fat16\fat32\exfat\ext4\ext3\ext2
 
+## 编译说明
+
+　> [编译说明](./DEVELOPNOTE.md)
+
 ## 贡献
 
 如果您对本项目有建议或想法，欢迎在GitHub或Gitee上提交issue和pull requests。
