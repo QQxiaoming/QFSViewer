@@ -138,7 +138,8 @@ public:
     void setExt4FSImgView(QString rootFSImgPath,uint64_t offset, uint64_t size) {
         bool read_only = true;
         resetView();
-        fsType = 0;
+        m_idle = false;
+        m_fsType = 0;
         setWindowTitle(rootFSImgPath);
         QFileInfo fi(rootFSImgPath);
         mode->set_root_timestamp((uint32_t)fi.birthTime().toUTC().toSecsSinceEpoch());
@@ -171,11 +172,13 @@ public:
         ext4_device_unregister("ext4_fs");
         fs_img.unmap(addr);
         fs_img.close();
+        m_idle = true;
     }
 
     void setFatFSImgView(QString rootFSImgPath,uint64_t offset, uint64_t size) {
         resetView();
-        fsType = 1;
+        m_idle = false;
+        m_fsType = 1;
         setWindowTitle(rootFSImgPath);
         QFileInfo fi(rootFSImgPath);
         mode->set_root_timestamp((uint32_t)fi.birthTime().toUTC().toSecsSinceEpoch());
@@ -197,11 +200,13 @@ public:
         f_mount(NULL,"",0);
         fs_img.unmap(addr);
         fs_img.close();
+        m_idle = true;
     }
 
     void setJffs2FSImgView(QString rootFSImgPath,uint64_t offset, uint64_t size) {
         resetView();
-        fsType = 2;
+        m_idle = false;
+        m_fsType = 2;
         setWindowTitle(rootFSImgPath);
         QFileInfo fi(rootFSImgPath);
         mode->set_root_timestamp((uint32_t)fi.birthTime().toUTC().toSecsSinceEpoch());
@@ -220,10 +225,12 @@ public:
         listJffs2FSAll("/",rootIndex);
         fs_img.unmap(addr);
         fs_img.close();
+        m_idle = true;
     }
 
     void resetView(void) {
-        fsType = 0;
+        m_idle = true;
+        m_fsType = 0;
         mode->removeTree(rootIndex);
         mode->set_root_timestamp(0);
         rootIndex = mode->addTree("/", 0, 0, 0, QModelIndex());
@@ -590,7 +597,7 @@ private:
 protected:
     void contextMenuEvent(QContextMenuEvent *event) override {
         QModelIndex tIndex = indexAt(viewport()->mapFromGlobal(event->globalPos()));
-        if (tIndex.isValid()) {
+        if (tIndex.isValid() && m_idle) {
             int type = FSView_UNKNOWN;
             QString name;
             mode->info(tIndex, type, name);
@@ -635,7 +642,7 @@ protected:
                                 return;
                             QFileInfo info(this->windowTitle());
                             int ret = -1;
-                            switch(fsType) {
+                            switch(m_fsType) {
                                 case 0:
                                     ret = exportExt4FSImg(this->windowTitle(), 0, info.size(), path, filename);
                                     break;
@@ -703,7 +710,7 @@ protected:
                         path = (path=="/")?(path+input.fileName()):(path+"/"+input.fileName());
                         QFileInfo info(this->windowTitle());
                         int ret = -1;
-                        switch(fsType) {
+                        switch(m_fsType) {
                             case 0:
                                 ret = importExt4FSImg(this->windowTitle(), 0, info.size(), path, filePath);
                                 if(ret == 0) {
@@ -749,7 +756,8 @@ protected:
 
 private:
     TreeModel *mode;
-    int fsType;
+    int m_fsType;
+    uint64_t m_idle;
     QWidget *m_parent;
     QModelIndex rootIndex;
 };
