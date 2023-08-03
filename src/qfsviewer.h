@@ -606,16 +606,15 @@ protected:
             mode->info(tIndex, type, name);
             if((type == FSView_REG_FILE) || (type == FSView_DIR)) {
                 //TODO: why this way crash?
-                //QMenu *menu = new QMenu(this); 
-                //menu->setAttribute(Qt::WA_DeleteOnClose); 
-                // Now we renew menu, because use Qt::WA_DeleteOnClose can't work
-                static QMenu *menu = nullptr;
-                if(menu) delete menu;
-                menu = new QMenu(this); 
+                //QMenu *contextMenu = new QMenu(this); 
+                //contextMenu->setAttribute(Qt::WA_DeleteOnClose); 
+                // Now we renew contextMenu, because use Qt::WA_DeleteOnClose can't work
+                if(contextMenu) delete contextMenu;
+                contextMenu = new QMenu(this); 
 
                 QAction *pExport= new QAction(tr("Export"), this);
                 pExport->setIcon(QIcon(QFontIcon::icon(QChar(0xf019))));
-                menu->addAction(pExport);
+                contextMenu->addAction(pExport);
                 connect(pExport,&QAction::triggered,this,
                     [&,tIndex](void)
                     {
@@ -675,7 +674,7 @@ protected:
 
                 QAction *pImport= new QAction(tr("Import"), this);
                 pImport->setIcon(QIcon(QFontIcon::icon(QChar(0xf093))));
-                menu->addAction(pImport);
+                contextMenu->addAction(pImport);
                 connect(pImport,&QAction::triggered,this,
                     [&,tIndex](void)
                     {
@@ -748,9 +747,9 @@ protected:
                         }
                     }
                 );
-                if(!menu->isEmpty()) {
-                    menu->move(cursor().pos());
-                    menu->show();
+                if(!contextMenu->isEmpty()) {
+                    contextMenu->move(cursor().pos());
+                    contextMenu->show();
                 }
             }
         }
@@ -774,6 +773,7 @@ private:
     int m_fsType;
     bool m_idle;
     QWidget *m_parent;
+    QMenu *contextMenu = nullptr;
     QModelIndex rootIndex;
 };
 
