@@ -84,7 +84,7 @@ void printdir( struct dir *d, const char *path,
 void freedir(struct dir *);
 
 long zlib_decompress(unsigned char *data_in, unsigned char *cpage_out,
-		      __u32 srclen, __u32 destlen)
+		      uint32_t srclen, uint32_t destlen)
 {
     return (decompress_block(cpage_out, data_in + 2));
 }
@@ -220,8 +220,6 @@ void putblock(char *b, size_t bsize, size_t * rsize,
 
 	if (je32_to_cpu(n->isize) > bsize || (je32_to_cpu(n->offset) + dlen) > bsize)
 	{
-		printf("isize: %d, offset: %d, dlen: %d, bsize: %d\n",
-				je32_to_cpu(n->isize), je32_to_cpu(n->offset), dlen, bsize);
 		errmsg_die("File does not fit into buffer!");
 	}
 
