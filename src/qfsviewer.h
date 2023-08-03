@@ -758,16 +758,21 @@ protected:
     }
 
     void closeEvent(QCloseEvent *event) override {
-        m_parent->show();
-        this->hide();
-        event->ignore();
+        if(!m_idle) {
+            QMessageBox::information(this, tr("Information"), tr("Loading, please wait..."));
+            event->ignore();
+        } else {
+            m_parent->show();
+            this->hide();
+            event->ignore();
+        }
     }
 
 private:
     TreeModel *mode;
     ConfigFile *m_configFile;
     int m_fsType;
-    uint64_t m_idle;
+    bool m_idle;
     QWidget *m_parent;
     QModelIndex rootIndex;
 };
