@@ -29,9 +29,6 @@ include(./lib/lwext4/lwext4.pri)
 include(./lib/ff15/ff15.pri)
 include(./lib/jffs2/jffs2.pri)
 
-INCLUDEPATH += $${Z_DIR}\include
-LIBS += -L $${Z_DIR}/lib
-
 # 源文件配置
 INCLUDEPATH += \
         -I . \

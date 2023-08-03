@@ -20,6 +20,7 @@
 #include "treemodel.h"
 
 #include "qfonticon.h"
+#include "configFile.h"
 
 const static QString VERSION = APP_VERSION;
 const static QString GIT_TAG =
@@ -30,9 +31,10 @@ class FSViewWindow : public QTreeView
 {
     Q_OBJECT
 public:
- explicit FSViewWindow(QWidget *parent = nullptr) :
+ explicit FSViewWindow(ConfigFile *configFile = nullptr, QWidget *parent = nullptr) :
         QTreeView(nullptr) {
         mode = new TreeModel(this);
+        m_configFile = configFile;
         setModel(mode);
         setEditTriggers(QAbstractItemView::NoEditTriggers);
         resetView();
@@ -346,8 +348,9 @@ public:
                     if(filename == input_name) {
                         while(ri) {
                             size_t sz;
-                            uint8_t *buf = new uint8_t[16384];
-                            putblock((char *)buf, 16384, &sz, ri);
+                            size_t len = qMax(je32_to_cpu(ri->isize),(je32_to_cpu(ri->offset) + je32_to_cpu(ri->dsize)));
+                            uint8_t *buf = new uint8_t[len];
+                            putblock((char *)buf, len, &sz, ri);
                             w.write((const char*)buf,sz);
                             delete[] buf;
                             ri = find_raw_inode(d->ino, je32_to_cpu(ri->version));
@@ -637,7 +640,8 @@ protected:
                             QMessageBox::critical(this, tr("Error"), tr("Exporting dirs is not currently supported!"));
                             return;
                         } else if(type == FSView_REG_FILE) {
-                            QString filename = QFileDialog::getSaveFileName(this, tr("Save File"), name);
+                            QString filename = QFileDialog::getSaveFileName(this, tr("Save File"),
+                                    (m_configFile?m_configFile->config_dict.lastFilePath:QDir::homePath())+"/"+name);
                             if (filename.isEmpty())
                                 return;
                             QFileInfo info(this->windowTitle());
@@ -656,6 +660,8 @@ protected:
                                     break;
                             }
                             if(ret == 0) {
+                                QFileInfo savePath(filename);
+                                if(m_configFile) m_configFile->config_dict.lastFilePath = savePath.absolutePath();
                                 QMessageBox::information(this, tr("Information"), tr("Export file success!"));
                             } else {
                                 QMessageBox::critical(this, tr("Error"), tr("Can't export file!"));
@@ -699,7 +705,8 @@ protected:
                             QFileInfo input_info(path);
                             path = input_info.absolutePath();
                         }
-                        QString filePath = QFileDialog::getOpenFileName(this, tr("Open File"), QDir::homePath());
+                        QString filePath = QFileDialog::getOpenFileName(this, tr("Open File"), 
+                            m_configFile? m_configFile->config_dict.lastFilePath:QDir::homePath());
                         if (filePath.isEmpty())
                             return;
                         QFileInfo input(filePath);
@@ -733,6 +740,8 @@ protected:
                                 break;
                         }
                         if(ret == 0) {
+                            QFileInfo savePath(filePath);
+                            if(m_configFile) m_configFile->config_dict.lastFilePath = savePath.absolutePath();
                             QMessageBox::information(this, tr("Information"), tr("Import file success!"));
                         } else {
                             QMessageBox::critical(this, tr("Error"), tr("Unsupported operation!"));
@@ -756,6 +765,7 @@ protected:
 
 private:
     TreeModel *mode;
+    ConfigFile *m_configFile;
     int m_fsType;
     uint64_t m_idle;
     QWidget *m_parent;

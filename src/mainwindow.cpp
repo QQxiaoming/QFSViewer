@@ -17,8 +17,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QRect size = this->geometry();
     this->move((screen.width() - size.width()) / 2, (screen.height() - size.height()) / 2);
 
-    fsView = new FSViewWindow(this);
-
     fsTypeMap = {
         {"jffs2", ui->radioButton_jffs2},
         {"fatX", ui->radioButton_fat},
@@ -42,6 +40,8 @@ MainWindow::MainWindow(QWidget *parent) :
     } else {
         ui->lineEdit->setText(QFSViewerConfigFile->config_dict.lastPath);
     }
+
+    fsView = new FSViewWindow(QFSViewerConfigFile, this);
 
     foreach (QString key, fsTypeMap.keys()) {
         if(QFSViewerConfigFile->config_dict.fsType == key) {

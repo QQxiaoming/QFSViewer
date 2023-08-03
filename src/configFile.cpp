@@ -24,6 +24,7 @@ ConfigFile::ConfigFile(const QString &path) :
         writer.writeStartDocument("1.0");  // 开始文档（XML 声明）
         writer.writeStartElement("config");
         writer.writeTextElement("lastPath", config_dict.lastPath);
+        writer.writeTextElement("lastFilePath", config_dict.lastFilePath);
         writer.writeTextElement("fsType", config_dict.fsType);
         writer.writeEndElement();
         writer.writeEndDocument();
@@ -37,6 +38,8 @@ ConfigFile::ConfigFile(const QString &path) :
             if(reader.isStartElement()) {
                 if(reader.name().toString() == "lastPath") {
                     config_dict.lastPath = reader.readElementText();
+                } else if(reader.name().toString() == "lastFilePath") {
+                    config_dict.lastFilePath = reader.readElementText();
                 } else if(reader.name().toString() == "fsType") {
                     config_dict.fsType = reader.readElementText();
                 }
@@ -57,6 +60,7 @@ ConfigFile::~ConfigFile() {
     writer.writeStartDocument("1.0");  // 开始文档（XML 声明）
     writer.writeStartElement("config");
     writer.writeTextElement("lastPath", config_dict.lastPath);
+    writer.writeTextElement("lastFilePath", config_dict.lastFilePath);
     writer.writeTextElement("fsType", config_dict.fsType);
     writer.writeEndElement();
     writer.writeEndDocument();

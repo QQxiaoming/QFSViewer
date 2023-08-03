@@ -45,9 +45,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>
-#include <zlib.h>
 
 #include "jffs2extract.h"
+#include "mini_inflate.h"
 #include "common.h"
 
 #if defined(__WINDOWS__)
@@ -83,7 +83,11 @@ void printdir( struct dir *d, const char *path,
      int verbose);
 void freedir(struct dir *);
 
-
+long zlib_decompress(unsigned char *data_in, unsigned char *cpage_out,
+		      __u32 srclen, __u32 destlen)
+{
+    return (decompress_block(cpage_out, data_in + 2));
+}
 
 static int jffs2_rtime_decompress(unsigned char *data_in,
 				  unsigned char *cpage_out,
@@ -215,16 +219,20 @@ void putblock(char *b, size_t bsize, size_t * rsize,
     unsigned long dlen = je32_to_cpu(n->dsize);
 
 	if (je32_to_cpu(n->isize) > bsize || (je32_to_cpu(n->offset) + dlen) > bsize)
+	{
+		printf("isize: %d, offset: %d, dlen: %d, bsize: %d\n",
+				je32_to_cpu(n->isize), je32_to_cpu(n->offset), dlen, bsize);
 		errmsg_die("File does not fit into buffer!");
+	}
 
 	if (*rsize < je32_to_cpu(n->isize))
 		bzero(b + *rsize, je32_to_cpu(n->isize) - *rsize);
 
 	switch (n->compr) {
 		case JFFS2_COMPR_ZLIB:
-            uncompress((Bytef *) b + je32_to_cpu(n->offset), &dlen,
-            		(Bytef *) ((char *) n) + sizeof(struct jffs2_raw_inode),
-            		(uLongf) je32_to_cpu(n->csize));
+            zlib_decompress((unsigned char *) ((char *) n) + sizeof(struct jffs2_raw_inode),
+					(unsigned char *) (b + je32_to_cpu(n->offset)),
+                    je32_to_cpu(n->csize), je32_to_cpu(n->dsize));
 			break;
 
 		case JFFS2_COMPR_NONE:

@@ -1,5 +1,3 @@
-LIBS += -lz
-
 HEADERS += \
     $$PWD/byteswap-osx.h \
     $$PWD/common.h \
@@ -14,6 +12,7 @@ HEADERS += \
 
 SOURCES += \
     $$PWD/jffs2extract.cpp \
+    $$PWD/mini_inflate.cpp \
     $$PWD/minilzo.cpp
 
 INCLUDEPATH += $$PWD

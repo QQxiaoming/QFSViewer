@@ -16,6 +16,7 @@ public:
 
     typedef struct {
         QString lastPath;
+        QString lastFilePath;
         QString fsType;
     }config_dict_t;
     config_dict_t config_dict;
