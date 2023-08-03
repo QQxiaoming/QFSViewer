@@ -83,24 +83,22 @@ void printdir( struct dir *d, const char *path,
      int verbose);
 void freedir(struct dir *);
 
-long zlib_decompress(unsigned char *data_in, unsigned char *cpage_out,
-		      uint32_t srclen, uint32_t destlen)
+long zlib_decompress(unsigned char *data_in, unsigned char *cpage_out )
 {
     return (decompress_block(cpage_out, data_in + 2));
 }
 
 static int jffs2_rtime_decompress(unsigned char *data_in,
-				  unsigned char *cpage_out,
-				  uint32_t srclen, uint32_t destlen)
+                  unsigned char *cpage_out, uint32_t destlen)
 {
 	short positions[256];
-	int outpos = 0;
+    uint32_t outpos = 0;
 	int pos=0;
 	memset(positions,0,sizeof(positions));
 	while (outpos<destlen) {
 		unsigned char value;
-		int backoffs;
-		int repeat;
+        uint32_t backoffs;
+        uint32_t repeat;
 		value = data_in[pos++];
 		cpage_out[outpos++] = value; /* first the verbatim copied byte */
 		repeat = data_in[pos++];
@@ -191,8 +189,7 @@ void rubin_do_decompress(unsigned char *bits, unsigned char *in,
 	}
 }
 
-void dynrubin_decompress(unsigned char *data_in, unsigned char *cpage_out,
-		   uint32_t sourcelen, uint32_t dstlen)
+void dynrubin_decompress(unsigned char *data_in, unsigned char *cpage_out, uint32_t dstlen)
 {
 	unsigned char bits[8];
 	int c;
@@ -229,8 +226,7 @@ void putblock(char *b, size_t bsize, size_t * rsize,
 	switch (n->compr) {
 		case JFFS2_COMPR_ZLIB:
             zlib_decompress((unsigned char *) ((char *) n) + sizeof(struct jffs2_raw_inode),
-					(unsigned char *) (b + je32_to_cpu(n->offset)),
-                    je32_to_cpu(n->csize), je32_to_cpu(n->dsize));
+                    (unsigned char *) (b + je32_to_cpu(n->offset)));
 			break;
 
 		case JFFS2_COMPR_NONE:
@@ -244,14 +240,12 @@ void putblock(char *b, size_t bsize, size_t * rsize,
 
 		case JFFS2_COMPR_RTIME:
 			jffs2_rtime_decompress((unsigned char *) ((char *) n) + sizeof(struct jffs2_raw_inode),
-					(unsigned char *) (b + je32_to_cpu(n->offset)),
-                    je32_to_cpu(n->csize), je32_to_cpu(n->dsize));
+                    (unsigned char *) (b + je32_to_cpu(n->offset)),je32_to_cpu(n->dsize));
 			break;
 			
 		case JFFS2_COMPR_DYNRUBIN:
 			dynrubin_decompress((unsigned char *) ((char *) n) + sizeof(struct jffs2_raw_inode),
-					(unsigned char *) (b + je32_to_cpu(n->offset)),
-					je32_to_cpu(n->csize), je32_to_cpu(n->dsize));
+                    (unsigned char *) (b + je32_to_cpu(n->offset)), je32_to_cpu(n->dsize));
 			break;
 
 		default:

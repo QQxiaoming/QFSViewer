@@ -65,7 +65,7 @@ static inline unsigned long pull_bits(struct bitstream *stream,
 				      const unsigned int bits)
 {
 	unsigned long ret;
-	int i;
+    unsigned int i;
 
 	ret = 0;
 	for (i = 0; i < bits; i++) {
