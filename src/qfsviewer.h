@@ -15,8 +15,8 @@
 #include <QFileDialog>
 
 #include "jffs2extract.h"
-#include "ff.h"
-#include "blockdev_port.h"
+#include "ff_port.h"
+#include "lwext4_port.h"
 #include "treemodel.h"
 
 #include "qfonticon.h"
