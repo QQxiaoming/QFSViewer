@@ -46,6 +46,7 @@
 #include <sys/stat.h>
 #include <dirent.h>
 
+#include "crc32.h"
 #include "jffs2extract.h"
 #include "mini_inflate.h"
 #include "common.h"
@@ -512,14 +513,18 @@ struct dir *collectdir(uint32_t ino, struct dir *d)
 			vmin = vmint;
 			vmint = ~((uint32_t) 0);
 
-			if (vcur <= vmax && vcur <= vmin) {
-				d = putdir(d, &(mp->d));
+            if (vcur <= vmax && vcur <= vmin) {
+                if(mp) {
+                    d = putdir(d, &(mp->d));
 
-				lr = n =
-					(union jffs2_node_union *) (((char *) mp) +
-							((je32_to_cpu(mp->u.totlen) + 3) & ~3));
+                    lr = n =
+                        (union jffs2_node_union *) (((char *) mp) +
+                                ((je32_to_cpu(mp->u.totlen) + 3) & ~3));
 
-				vcur = vmin;
+                    vcur = vmin;
+                } else {
+                    vcur = vmin;
+                }
 			}
 		}
     } while (vcur <= vmax);
@@ -527,7 +532,37 @@ struct dir *collectdir(uint32_t ino, struct dir *d)
 	return d;
 }
 
+void find_free(uint32_t *ino, uint64_t *offset)
+{
+	union jffs2_node_union *e = (union jffs2_node_union *) (ram_disk_data + ram_disk_size);
+    union jffs2_node_union *n = (union jffs2_node_union *) ram_disk_data;
+	*ino = 0;
+	*offset = 0;
+	do {
+		while (n < e && je16_to_cpu(n->u.magic) != JFFS2_MAGIC_BITMASK)
+			ADD_BYTES(n, 4);
 
+		if (n < e && je16_to_cpu(n->u.magic) == JFFS2_MAGIC_BITMASK) {
+			if(je16_to_cpu(n->u.nodetype) == JFFS2_NODETYPE_DIRENT) {
+				if(*ino < je32_to_cpu(n->d.ino))
+					*ino = je32_to_cpu(n->d.ino);
+			} else if (je16_to_cpu(n->u.nodetype) == JFFS2_NODETYPE_INODE) {
+				if(*ino < je32_to_cpu(n->i.ino))
+					*ino = je32_to_cpu(n->i.ino);
+			} else if (je16_to_cpu(n->u.nodetype) == JFFS2_NODETYPE_XREF) {
+				if(*ino < je32_to_cpu(n->r.ino))
+					*ino = je32_to_cpu(n->r.ino);
+			}
+			ADD_BYTES(n, ((je32_to_cpu(n->u.totlen) + 3) & ~3));
+			*offset = ((uint8_t *)n) - ram_disk_data;
+		} else
+			break;
+    } while (1);
+	*ino += 1;
+	*offset += 1;
+	if(*offset > ram_disk_size )
+		*offset = ram_disk_size;
+}
 
 /* resolve dirent based on criteria */
 /*
@@ -726,6 +761,376 @@ struct jffs2_raw_dirent *resolvepath(uint32_t ino,
 		const char *p, uint32_t * inos)
 {
 	return resolvepath0(ino, p, inos, 0);
+}
+
+void write_dir(const char *name, 
+				uint32_t pino, uint32_t ino,
+				uint64_t offset, int add_cleanmarkers,int erase_block_size )
+{
+	struct jffs2_raw_dirent rd;
+	const static unsigned char ffbuf[16] =
+	{ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+		0xff, 0xff, 0xff, 0xff, 0xff
+	};
+	static struct jffs2_unknown_node cleanmarker = {0};
+	static int cleanmarker_size = sizeof(cleanmarker);
+
+	memset(&rd, 0, sizeof(rd));
+
+	rd.magic = cpu_to_je16(JFFS2_MAGIC_BITMASK);
+	rd.nodetype = cpu_to_je16(JFFS2_NODETYPE_DIRENT);
+	rd.totlen = cpu_to_je32(sizeof(rd) + strlen(name));
+	rd.hdr_crc = cpu_to_je32(mtd_crc32(0, &rd,
+				sizeof(struct jffs2_unknown_node) - 4));
+    rd.pino = cpu_to_je32(pino);
+    rd.version = cpu_to_je32(1);
+    rd.ino = cpu_to_je32(ino);
+	rd.mctime = cpu_to_je32(0);//st_mtime
+	rd.nsize = strlen(name);
+	rd.type = 4;
+	//rd.unused[0] = 0;
+	//rd.unused[1] = 0;
+	rd.node_crc = cpu_to_je32(mtd_crc32(0, &rd, sizeof(rd) - 8));
+	rd.name_crc = cpu_to_je32(mtd_crc32(0, name, strlen(name)));
+
+
+	//pad_block_if_less_than(sizeof(rd) + rd.nsize);
+	if(erase_block_size) {
+		if (add_cleanmarkers) {
+			if ((offset % erase_block_size) == 0) {
+				memcpy(ram_disk_data + offset, &cleanmarker,  sizeof(cleanmarker));
+				offset += sizeof(cleanmarker);
+				int req = cleanmarker_size - sizeof(cleanmarker);
+				while (req) {
+					if (req > sizeof(ffbuf)) {
+						memcpy(ram_disk_data + offset, ffbuf,  sizeof(ffbuf));
+						offset += sizeof(ffbuf);
+						req -= sizeof(ffbuf);
+					} else {
+						memcpy(ram_disk_data + offset, ffbuf, req);
+						offset += req;
+						req = 0;
+					}
+				}
+				if (offset % 4) {
+					memcpy(ram_disk_data + offset, ffbuf, 4 - (offset % 4));
+					offset += 4 - (offset % 4);
+				}
+			}
+		}
+		if ((offset % erase_block_size) + sizeof(rd) + rd.nsize > erase_block_size) {
+			while (offset % erase_block_size) {
+				memcpy(ram_disk_data + offset, ffbuf,  min(sizeof(ffbuf),
+							erase_block_size - (offset % erase_block_size)));
+				offset += min(sizeof(ffbuf), erase_block_size - (offset % erase_block_size));
+			}
+		}
+		if (add_cleanmarkers) {
+			if ((offset % erase_block_size) == 0) {
+				memcpy(ram_disk_data + offset, &cleanmarker,  sizeof(cleanmarker));
+				offset += sizeof(cleanmarker);
+				int req = cleanmarker_size - sizeof(cleanmarker);
+				while (req) {
+					if (req > sizeof(ffbuf)) {
+						memcpy(ram_disk_data + offset, ffbuf,  sizeof(ffbuf));
+						offset += sizeof(ffbuf);
+						req -= sizeof(ffbuf);
+					} else {
+						memcpy(ram_disk_data + offset, ffbuf, req);
+						offset += req;
+						req = 0;
+					}
+				}
+				if (offset % 4) {
+					memcpy(ram_disk_data + offset, ffbuf, 4 - (offset % 4));
+					offset += 4 - (offset % 4);
+				}
+			}
+		}
+	}
+
+	memcpy(ram_disk_data + offset, &rd,  sizeof(rd));
+	offset += sizeof(rd);
+	memcpy(ram_disk_data + offset, name, rd.nsize);
+	offset += rd.nsize;
+
+	//padword();
+	if (offset % 4) {
+		memcpy(ram_disk_data + offset, ffbuf, 4 - (offset % 4));
+		offset += 4 - (offset % 4);
+	}
+
+	struct jffs2_raw_inode ri;
+	memset(&ri, 0, sizeof(ri));
+
+	ri.magic = cpu_to_je16(JFFS2_MAGIC_BITMASK);
+	ri.nodetype = cpu_to_je16(JFFS2_NODETYPE_INODE);
+	ri.totlen = cpu_to_je32(sizeof(ri));
+	ri.hdr_crc = cpu_to_je32(mtd_crc32(0,
+				&ri, sizeof(struct jffs2_unknown_node) - 4));
+	ri.ino = cpu_to_je32(ino);
+	ri.mode = cpu_to_jemode(S_IFDIR);//st_mode
+	ri.uid = cpu_to_je16(0);//st_uid
+	ri.gid = cpu_to_je16(0);//st_gid
+	ri.atime = cpu_to_je32(0);//st_atime
+	ri.ctime = cpu_to_je32(0);//st_ctime
+	ri.mtime = cpu_to_je32(0);//st_mtime
+	ri.isize = cpu_to_je32(0);
+	ri.version = cpu_to_je32(1);
+	ri.csize = cpu_to_je32(0);
+	ri.dsize = cpu_to_je32(0);
+	ri.node_crc = cpu_to_je32(mtd_crc32(0, &ri, sizeof(ri) - 8));
+	ri.data_crc = cpu_to_je32(0);
+
+	//pad_block_if_less_than(sizeof(ri));
+	if(erase_block_size) {
+		if (add_cleanmarkers) {
+			if ((offset % erase_block_size) == 0) {
+				memcpy(ram_disk_data + offset, &cleanmarker,  sizeof(cleanmarker));
+				offset += sizeof(cleanmarker);
+				int req = cleanmarker_size - sizeof(cleanmarker);
+				while (req) {
+					if (req > sizeof(ffbuf)) {
+						memcpy(ram_disk_data + offset, ffbuf,  sizeof(ffbuf));
+						offset += sizeof(ffbuf);
+						req -= sizeof(ffbuf);
+					} else {
+						memcpy(ram_disk_data + offset, ffbuf, req);
+						offset += req;
+						req = 0;
+					}
+				}
+				if (offset % 4) {
+					memcpy(ram_disk_data + offset, ffbuf, 4 - (offset % 4));
+					offset += 4 - (offset % 4);
+				}
+			}
+		}
+		if ((offset % erase_block_size) + sizeof(ri) > erase_block_size) {
+			while (offset % erase_block_size) {
+				memcpy(ram_disk_data + offset, ffbuf,  min(sizeof(ffbuf),
+							erase_block_size - (offset % erase_block_size)));
+				offset += min(sizeof(ffbuf), erase_block_size - (offset % erase_block_size));
+			}
+		}
+		if (add_cleanmarkers) {
+			if ((offset % erase_block_size) == 0) {
+				memcpy(ram_disk_data + offset, &cleanmarker,  sizeof(cleanmarker));
+				offset += sizeof(cleanmarker);
+				int req = cleanmarker_size - sizeof(cleanmarker);
+				while (req) {
+					if (req > sizeof(ffbuf)) {
+						memcpy(ram_disk_data + offset, ffbuf,  sizeof(ffbuf));
+						offset += sizeof(ffbuf);
+						req -= sizeof(ffbuf);
+					} else {
+						memcpy(ram_disk_data + offset, ffbuf, req);
+						offset += req;
+						req = 0;
+					}
+				}
+				if (offset % 4) {
+					memcpy(ram_disk_data + offset, ffbuf, 4 - (offset % 4));
+					offset += 4 - (offset % 4);
+				}
+			}
+		}
+	}
+
+	memcpy(ram_disk_data + offset, &ri, sizeof(ri));
+	offset += sizeof(ri);
+
+	//padword();
+	if (offset % 4) {
+		memcpy(ram_disk_data + offset, ffbuf, 4 - (offset % 4));
+		offset += 4 - (offset % 4);
+	}
+}
+
+void write_file(const char *name, 
+				uint32_t pino, uint32_t ino,
+				uint64_t offset, int add_cleanmarkers,int erase_block_size )
+{
+	struct jffs2_raw_dirent rd;
+	const static unsigned char ffbuf[16] =
+	{ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+		0xff, 0xff, 0xff, 0xff, 0xff
+	};
+	static struct jffs2_unknown_node cleanmarker = {0};
+	static int cleanmarker_size = sizeof(cleanmarker);
+
+	memset(&rd, 0, sizeof(rd));
+
+	rd.magic = cpu_to_je16(JFFS2_MAGIC_BITMASK);
+	rd.nodetype = cpu_to_je16(JFFS2_NODETYPE_DIRENT);
+	rd.totlen = cpu_to_je32(sizeof(rd) + strlen(name));
+	rd.hdr_crc = cpu_to_je32(mtd_crc32(0, &rd,
+				sizeof(struct jffs2_unknown_node) - 4));
+    rd.pino = cpu_to_je32(pino);
+    rd.version = cpu_to_je32(1);
+    rd.ino = cpu_to_je32(ino);
+	rd.mctime = cpu_to_je32(0);//st_mtime
+	rd.nsize = strlen(name);
+	rd.type = 8;
+	//rd.unused[0] = 0;
+	//rd.unused[1] = 0;
+	rd.node_crc = cpu_to_je32(mtd_crc32(0, &rd, sizeof(rd) - 8));
+	rd.name_crc = cpu_to_je32(mtd_crc32(0, name, strlen(name)));
+
+
+	//pad_block_if_less_than(sizeof(rd) + rd.nsize);
+	if(erase_block_size) {
+		if (add_cleanmarkers) {
+			if ((offset % erase_block_size) == 0) {
+				memcpy(ram_disk_data + offset, &cleanmarker,  sizeof(cleanmarker));
+				offset += sizeof(cleanmarker);
+				int req = cleanmarker_size - sizeof(cleanmarker);
+				while (req) {
+					if (req > sizeof(ffbuf)) {
+						memcpy(ram_disk_data + offset, ffbuf,  sizeof(ffbuf));
+						offset += sizeof(ffbuf);
+						req -= sizeof(ffbuf);
+					} else {
+						memcpy(ram_disk_data + offset, ffbuf, req);
+						offset += req;
+						req = 0;
+					}
+				}
+				if (offset % 4) {
+					memcpy(ram_disk_data + offset, ffbuf, 4 - (offset % 4));
+					offset += 4 - (offset % 4);
+				}
+			}
+		}
+		if ((offset % erase_block_size) + sizeof(rd) + rd.nsize > erase_block_size) {
+			while (offset % erase_block_size) {
+				memcpy(ram_disk_data + offset, ffbuf,  min(sizeof(ffbuf),
+							erase_block_size - (offset % erase_block_size)));
+				offset += min(sizeof(ffbuf), erase_block_size - (offset % erase_block_size));
+			}
+		}
+		if (add_cleanmarkers) {
+			if ((offset % erase_block_size) == 0) {
+				memcpy(ram_disk_data + offset, &cleanmarker,  sizeof(cleanmarker));
+				offset += sizeof(cleanmarker);
+				int req = cleanmarker_size - sizeof(cleanmarker);
+				while (req) {
+					if (req > sizeof(ffbuf)) {
+						memcpy(ram_disk_data + offset, ffbuf,  sizeof(ffbuf));
+						offset += sizeof(ffbuf);
+						req -= sizeof(ffbuf);
+					} else {
+						memcpy(ram_disk_data + offset, ffbuf, req);
+						offset += req;
+						req = 0;
+					}
+				}
+				if (offset % 4) {
+					memcpy(ram_disk_data + offset, ffbuf, 4 - (offset % 4));
+					offset += 4 - (offset % 4);
+				}
+			}
+		}
+	}
+
+	memcpy(ram_disk_data + offset, &rd,  sizeof(rd));
+	offset += sizeof(rd);
+	memcpy(ram_disk_data + offset, name, rd.nsize);
+	offset += rd.nsize;
+
+	//padword();
+	if (offset % 4) {
+		memcpy(ram_disk_data + offset, ffbuf, 4 - (offset % 4));
+		offset += 4 - (offset % 4);
+	}
+
+	struct jffs2_raw_inode ri;
+	memset(&ri, 0, sizeof(ri));
+
+	ri.magic = cpu_to_je16(JFFS2_MAGIC_BITMASK);
+	ri.nodetype = cpu_to_je16(JFFS2_NODETYPE_INODE);
+
+	ri.ino = cpu_to_je32(ino);
+	ri.mode = cpu_to_jemode(S_IFREG);//st_mode
+	ri.uid = cpu_to_je16(0);//st_uid
+	ri.gid = cpu_to_je16(0);//st_gid
+	ri.atime = cpu_to_je32(0);//st_atime
+	ri.ctime = cpu_to_je32(0);//st_ctime
+	ri.mtime = cpu_to_je32(0);//st_mtime
+	ri.isize = cpu_to_je32(0);
+
+	/* Was empty file */
+	ri.version = cpu_to_je32(1);
+	ri.totlen = cpu_to_je32(sizeof(ri));
+	ri.hdr_crc = cpu_to_je32(mtd_crc32(0,
+				&ri, sizeof(struct jffs2_unknown_node) - 4));
+	ri.csize = cpu_to_je32(0);
+	ri.dsize = cpu_to_je32(0);
+	ri.node_crc = cpu_to_je32(mtd_crc32(0, &ri, sizeof(ri) - 8));
+
+	//pad_block_if_less_than(sizeof(ri));
+	if(erase_block_size) {
+		if (add_cleanmarkers) {
+			if ((offset % erase_block_size) == 0) {
+				memcpy(ram_disk_data + offset, &cleanmarker,  sizeof(cleanmarker));
+				offset += sizeof(cleanmarker);
+				int req = cleanmarker_size - sizeof(cleanmarker);
+				while (req) {
+					if (req > sizeof(ffbuf)) {
+						memcpy(ram_disk_data + offset, ffbuf,  sizeof(ffbuf));
+						offset += sizeof(ffbuf);
+						req -= sizeof(ffbuf);
+					} else {
+						memcpy(ram_disk_data + offset, ffbuf, req);
+						offset += req;
+						req = 0;
+					}
+				}
+				if (offset % 4) {
+					memcpy(ram_disk_data + offset, ffbuf, 4 - (offset % 4));
+					offset += 4 - (offset % 4);
+				}
+			}
+		}
+		if ((offset % erase_block_size) + sizeof(ri) > erase_block_size) {
+			while (offset % erase_block_size) {
+				memcpy(ram_disk_data + offset, ffbuf,  min(sizeof(ffbuf),
+							erase_block_size - (offset % erase_block_size)));
+				offset += min(sizeof(ffbuf), erase_block_size - (offset % erase_block_size));
+			}
+		}
+		if (add_cleanmarkers) {
+			if ((offset % erase_block_size) == 0) {
+				memcpy(ram_disk_data + offset, &cleanmarker,  sizeof(cleanmarker));
+				offset += sizeof(cleanmarker);
+				int req = cleanmarker_size - sizeof(cleanmarker);
+				while (req) {
+					if (req > sizeof(ffbuf)) {
+						memcpy(ram_disk_data + offset, ffbuf,  sizeof(ffbuf));
+						offset += sizeof(ffbuf);
+						req -= sizeof(ffbuf);
+					} else {
+						memcpy(ram_disk_data + offset, ffbuf, req);
+						offset += req;
+						req = 0;
+					}
+				}
+				if (offset % 4) {
+					memcpy(ram_disk_data + offset, ffbuf, 4 - (offset % 4));
+					offset += 4 - (offset % 4);
+				}
+			}
+		}
+	}
+
+	memcpy(ram_disk_data + offset, &ri, sizeof(ri));
+	offset += sizeof(ri);
+
+	//padword();
+	if (offset % 4) {
+		memcpy(ram_disk_data + offset, ffbuf, 4 - (offset % 4));
+		offset += 4 - (offset % 4);
+	}
 }
 
 void jffs2_init(uint8_t * data, uint64_t data_size) {

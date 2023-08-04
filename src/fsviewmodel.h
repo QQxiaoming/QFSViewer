@@ -71,7 +71,10 @@ public:
 
     int importFSImg(QString output, QString input) {
         QFile fs_img(rootFSImgPath);
-        fs_img.open(QIODevice::ReadWrite);
+        if(!fs_img.open(QIODevice::ReadWrite)) {
+            qWarning() << "open fs img failed";
+            return -1;
+        }
         uint8_t *addr = fs_img.map(offset,size);
         fs_init(addr,size,false);
         QFile w(input);

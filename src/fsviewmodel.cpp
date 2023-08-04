@@ -267,6 +267,9 @@ int Jffs2FSViewModel::fs_write_file(QString input, QFile &output) {
     QFileInfo input_info(input);
     QString input_path = input_info.absolutePath();
     QString input_name = input_info.fileName();
+#if defined(Q_OS_WIN)
+    input_path.replace("C:/","");
+#endif
     struct jffs2_raw_dirent *dd;
     struct dir *d = NULL;
     uint32_t ino;
@@ -310,10 +313,30 @@ int Jffs2FSViewModel::fs_write_file(QString input, QFile &output) {
 }
 
 int Jffs2FSViewModel::fs_read_file(QString output, QFile &input) {
-    //TODO: implement
-    Q_UNUSED(output);
-    Q_UNUSED(input);
+#if 1
     return -1;
+#else
+    QFileInfo output_info(output);
+    QString output_path = output_info.absolutePath();
+    QString output_name = output_info.fileName();
+#if defined(Q_OS_WIN)
+    input_path.replace("C:/","");
+#endif
+
+    struct jffs2_raw_dirent *dd;
+    uint32_t ino;
+    dd = resolvepath(1, output_path.toStdString().c_str(), &ino);
+    if (ino == 0 || (dd == NULL && ino == 0))
+        qWarning("No such file or directory");
+    else if ((dd == NULL && ino != 0) || (dd != NULL && dd->type == 4)) {
+        uint32_t free_ino;
+        uint64_t free_offset;
+        find_free(&free_ino, &free_offset);
+        //TODOL: write file 
+        write_file(output_name.toStdString().c_str(), ino, free_ino, free_offset, 0, 4);
+    }
+    return 0;
+#endif
 }
 
 void Jffs2FSViewModel::listFSAll(QString path, QModelIndex index) {
