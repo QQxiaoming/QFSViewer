@@ -91,18 +91,7 @@ QVariant TreeModel::data(const QModelIndex &index, int role) const
 	if ( !index.isValid() ) { return QVariant() ; }
 
     TreeItem *p = static_cast<TreeItem *>(index.internalPointer()) ;
-    
-	enum fs_entity_type {
-		UNKNOWN = 0,
-		REG_FILE,
-		DIR,
-		CHARDEV,
-		BLOCKDEV,
-		FIFO,
-		SOCKET,
-		SYMLINK,
-		LAST
-	};
+
 	struct fs_index {
         int type;
         int column;
@@ -181,7 +170,7 @@ QVariant TreeModel::data(const QModelIndex &index, int role) const
 	return QVariant();
 }
 
-void TreeModel::info(const QModelIndex &index, int &type, QString &name)
+void TreeModel::info(const QModelIndex &index, int &type, QString &name, uint64_t &size)
 {
 	if ( !index.isValid() ) { return; }
 
@@ -189,6 +178,13 @@ void TreeModel::info(const QModelIndex &index, int &type, QString &name)
 
 	type = p->type();
 	name = p->data();
+	if(type == REG_FILE) {
+		size = p->size();
+	} else if(type == DIR) {
+		size = p->childCount();
+	} else {
+		size = 0;
+	}
 }
 
 int TreeModel::rowCount(const QModelIndex &parent) const

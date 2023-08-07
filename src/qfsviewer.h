@@ -177,8 +177,9 @@ protected:
         QModelIndex tIndex = indexAt(viewport()->mapFromGlobal(event->globalPos()));
         if (tIndex.isValid() && m_idle) {
             int type = FSViewModel::FSView_UNKNOWN;
+            uint64_t size = 0;
             QString name;
-            mode->info(tIndex, type, name);
+            mode->info(tIndex, type, name, size);
             if((type == FSViewModel::FSView_REG_FILE) || (type == FSViewModel::FSView_DIR)) {
                 //TODO: why this way crash?
                 //QMenu *contextMenu = new QMenu(this); 
@@ -194,15 +195,17 @@ protected:
                     [&,tIndex](void)
                     {
                         QString name;
+                        uint64_t size = 0;
                         int type = FSViewModel::FSView_UNKNOWN;
-                        mode->info(tIndex, type, name);
+                        mode->info(tIndex, type, name, size);
                         QString path = name;
                         std::function<QModelIndex(QModelIndex,QString &)> get_parent = [&](QModelIndex index, QString &name) -> QModelIndex {
                             if(index.isValid() && index.parent().isValid()) {
                                 QString pname;
+                                uint64_t size = 0;
                                 int type = FSViewModel::FSView_UNKNOWN;
                                 QModelIndex parent = index.parent();
-                                mode->info(parent, type, pname);
+                                mode->info(parent, type, pname, size);
                                 name = (pname == "/")?(pname + name):(pname + "/" + name);
                                 return get_parent(parent, name);
                             } else {
@@ -247,15 +250,17 @@ protected:
                         }
 
                         QString name;
+                        uint64_t size = 0;
                         int type = FSViewModel::FSView_UNKNOWN;
-                        mode->info(tIndex, type, name);
+                        mode->info(tIndex, type, name, size);
                         QString path = name;
                         std::function<QModelIndex(QModelIndex,QString &)> get_parent = [&](QModelIndex index, QString &name) -> QModelIndex {
                             if(index.isValid() && index.parent().isValid()) {
                                 QString pname;
+                                uint64_t size = 0;
                                 int type = FSViewModel::FSView_UNKNOWN;
                                 QModelIndex parent = index.parent();
-                                mode->info(parent, type, pname);
+                                mode->info(parent, type, pname, size);
                                 name = (pname == "/")?(pname + name):(pname + "/" + name);
                                 return get_parent(parent, name);
                             } else {
@@ -301,10 +306,10 @@ protected:
                     }
                 );
 
-                QAction *pNew_Dir= new QAction(tr("New Dir"), this);
-                pNew_Dir->setIcon(QIcon(QFontIcon::icon(QChar(0xf0f6))));
-                contextMenu->addAction(pNew_Dir);
-                connect(pNew_Dir,&QAction::triggered,this,
+                QAction *pCreate= new QAction(tr("Create"), this);
+                pCreate->setIcon(QIcon(QFontIcon::icon(QChar(0xf0f6))));
+                contextMenu->addAction(pCreate);
+                connect(pCreate,&QAction::triggered,this,
                 [&,tIndex](void)
                     {
                         int wret = QMessageBox::warning(this,"Warning","In principle, this software does not provide the function of modifying the disk image. If you use this function, please remember to back up your files, and this software does not guarantee the strict correctness of the import.\nPlease choose whether to continue.", QMessageBox::Yes, QMessageBox::No);
@@ -313,15 +318,17 @@ protected:
                         }
 
                         QString name;
+                        uint64_t size = 0;
                         int type = FSViewModel::FSView_UNKNOWN;
-                        mode->info(tIndex, type, name);
+                        mode->info(tIndex, type, name, size);
                         QString path = name;
                         std::function<QModelIndex(QModelIndex,QString &)> get_parent = [&](QModelIndex index, QString &name) -> QModelIndex {
                             if(index.isValid() && index.parent().isValid()) {
                                 QString pname;
+                                uint64_t size = 0;
                                 int type = FSViewModel::FSView_UNKNOWN;
                                 QModelIndex parent = index.parent();
-                                mode->info(parent, type, pname);
+                                mode->info(parent, type, pname, size);
                                 name = (pname == "/")?(pname + name):(pname + "/" + name);
                                 return get_parent(parent, name);
                             } else {
@@ -336,9 +343,14 @@ protected:
                             path.replace("C:/","");
                         #endif
                         }
-                        QString fileName = QInputDialog::getText(this, tr("Enter Dir Name"), tr("Name"));
-                        if (fileName.isEmpty())
+                        bool isOK = false;
+                        QString fileName = QInputDialog::getText(this, tr("Enter Dir Name"), tr("Name"), QLineEdit::Normal, "", &isOK);
+                        if (fileName.isEmpty()) {
+                            if(isOK) {
+                                QMessageBox::critical(this, tr("Error"), tr("Can't create dir!"));
+                            }
                             return;
+                        }
                         path = (path=="/")?(path+fileName):(path+"/"+fileName);
                         QFileInfo info(this->windowTitle());
                         int ret = -1;
@@ -358,10 +370,10 @@ protected:
                         }
                     }
                 );
-                QAction *pDel_Dir= new QAction(tr("Del Dir"), this);
-                pDel_Dir->setIcon(QIcon(QFontIcon::icon(QChar(0xf014))));
-                contextMenu->addAction(pDel_Dir);
-                connect(pDel_Dir,&QAction::triggered,this,
+                QAction *pDelete= new QAction(tr("Delete"), this);
+                pDelete->setIcon(QIcon(QFontIcon::icon(QChar(0xf014))));
+                contextMenu->addAction(pDelete);
+                connect(pDelete,&QAction::triggered,this,
                 [&,tIndex](void)
                     {
                         int wret = QMessageBox::warning(this,"Warning","In principle, this software does not provide the function of modifying the disk image. If you use this function, please remember to back up your files, and this software does not guarantee the strict correctness of the import.\nPlease choose whether to continue.", QMessageBox::Yes, QMessageBox::No);
@@ -370,19 +382,25 @@ protected:
                         }
 
                         QString name;
+                        uint64_t size = 0;
                         int type = FSViewModel::FSView_UNKNOWN;
-                        mode->info(tIndex, type, name);
-                        if(type != FSViewModel::FSView_DIR) {
+                        mode->info(tIndex, type, name, size);
+                        if(type != FSViewModel::FSView_DIR && type != FSViewModel::FSView_REG_FILE) {
                             QMessageBox::critical(this, tr("Error"), tr("Unsupported operation!"));
+                            return;
+                        }
+                        if(size != 0) {
+                            QMessageBox::critical(this, tr("Error"), tr("Now only support delete empty dir!"));
                             return;
                         }
                         QString path = name;
                         std::function<QModelIndex(QModelIndex,QString &)> get_parent = [&](QModelIndex index, QString &name) -> QModelIndex {
                             if(index.isValid() && index.parent().isValid()) {
                                 QString pname;
+                                uint64_t size = 0;
                                 int type = FSViewModel::FSView_UNKNOWN;
                                 QModelIndex parent = index.parent();
-                                mode->info(parent, type, pname);
+                                mode->info(parent, type, pname, size);
                                 name = (pname == "/")?(pname + name):(pname + "/" + name);
                                 return get_parent(parent, name);
                             } else {
@@ -393,7 +411,11 @@ protected:
                         QFileInfo info(this->windowTitle());
                         int ret = -1;
                         if(fsView) {
-                            ret = fsView->removeDirFSImg(path);
+                            if(type != FSViewModel::FSView_DIR ) {
+                                ret = fsView->removeDirFSImg(path);
+                            } else if(type != FSViewModel::FSView_REG_FILE) {
+                                ret = fsView->removeFileFSImg(path);
+                            }
                             if(ret == 0) {
                                 resetView();
                                 m_idle = false;

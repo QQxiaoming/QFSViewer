@@ -96,6 +96,11 @@ int Ext4FSViewModel::fs_remove_dir(QString path) {
     return 0;
 }
 
+int Ext4FSViewModel::fs_remove_file(QString path) {
+    ext4_fremove(path.toStdString().c_str());
+    return 0;
+}
+
 void Ext4FSViewModel::listFSAll(QString path, QModelIndex index) {
     const ext4_direntry *de;
     ext4_dir d;
@@ -215,6 +220,11 @@ int FatFSFSViewModel::fs_create_dir(QString path) {
 
 int FatFSFSViewModel::fs_remove_dir(QString path) {
     f_rmdir(path.toStdString().c_str());
+    return 0;
+}
+
+int FatFSFSViewModel::fs_remove_file(QString path) {
+    f_unlink(path.toStdString().c_str());
     return 0;
 }
 
@@ -383,6 +393,12 @@ int Jffs2FSViewModel::fs_create_dir(QString path) {
 }
 
 int Jffs2FSViewModel::fs_remove_dir(QString path) {
+    Q_UNUSED(path);
+    return -1;
+}
+
+int Jffs2FSViewModel::fs_remove_file(QString path) {
+    Q_UNUSED(path);
     return -1;
 }
 
