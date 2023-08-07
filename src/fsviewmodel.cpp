@@ -337,7 +337,7 @@ int Jffs2FSViewModel::fs_read_file(QString output, QFile &input) {
     QString output_path = output_info.absolutePath();
     QString output_name = output_info.fileName();
 #if defined(Q_OS_WIN)
-    input_path.replace("C:/","");
+    output_path.replace("C:/","");
 #endif
 
     struct jffs2_raw_dirent *dd;
@@ -364,7 +364,7 @@ int Jffs2FSViewModel::fs_create_dir(QString path) {
     QString output_path = output_info.absolutePath();
     QString output_name = output_info.fileName();
 #if defined(Q_OS_WIN)
-    input_path.replace("C:/","");
+    output_path.replace("C:/","");
 #endif
 
     struct jffs2_raw_dirent *dd;
