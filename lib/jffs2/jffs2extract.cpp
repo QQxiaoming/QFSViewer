@@ -767,17 +767,7 @@ uint16_t jffs2_compress( unsigned char *data_in, unsigned char **cpage_out,
 		uint32_t *datalen, uint32_t *cdatalen)
 {
 	int ret = JFFS2_COMPR_NONE;
-	int compr_ret;
-	unsigned char *output_buf = NULL, *tmp_buf;
-	uint32_t orig_slen, orig_dlen;
-	uint32_t best_slen=0, best_dlen=0;
-
-	//switch (jffs2_compression_mode) {
-	//	case JFFS2_COMPR_MODE_NONE:
-	//		break;
-	//	default:
-	//		break;
-	//}
+    unsigned char *output_buf = NULL;
 
 	if (ret == JFFS2_COMPR_NONE) {
 		*cpage_out = data_in;
@@ -789,21 +779,22 @@ uint16_t jffs2_compress( unsigned char *data_in, unsigned char **cpage_out,
 	return ret;
 }
 
-static uint64_t pre_pad_block(uint64_t offset, int req, int add_cleanmarkers, int erase_block_size)
+static uint64_t pre_pad_block(uint64_t offset, uint32_t req, uint32_t add_cleanmarkers, uint32_t erase_block_size)
 {
 	const static unsigned char ffbuf[16] =
 	{ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
 		0xff, 0xff, 0xff, 0xff, 0xff
 	};
-	static struct jffs2_unknown_node cleanmarker = {0};
-	static int cleanmarker_size = sizeof(cleanmarker);
+    const struct jffs2_unknown_node cleanmarker = {
+        .magic = {0}, .nodetype = {0}, .totlen = {0}, .hdr_crc = {0}};
+    const int cleanmarker_size = sizeof(cleanmarker);
 
 	if(erase_block_size) {
 		if (add_cleanmarkers) {
 			if ((offset % erase_block_size) == 0) {
 				memcpy(ram_disk_data + offset, &cleanmarker,  sizeof(cleanmarker));
 				offset += sizeof(cleanmarker);
-				int req = cleanmarker_size - sizeof(cleanmarker);
+                unsigned int req = cleanmarker_size - sizeof(cleanmarker);
 				while (req) {
 					if (req > sizeof(ffbuf)) {
 						memcpy(ram_disk_data + offset, ffbuf,  sizeof(ffbuf));
@@ -832,7 +823,7 @@ static uint64_t pre_pad_block(uint64_t offset, int req, int add_cleanmarkers, in
 			if ((offset % erase_block_size) == 0) {
 				memcpy(ram_disk_data + offset, &cleanmarker,  sizeof(cleanmarker));
 				offset += sizeof(cleanmarker);
-				int req = cleanmarker_size - sizeof(cleanmarker);
+                uint32_t req = cleanmarker_size - sizeof(cleanmarker);
 				while (req) {
 					if (req > sizeof(ffbuf)) {
 						memcpy(ram_disk_data + offset, ffbuf,  sizeof(ffbuf));
@@ -887,7 +878,7 @@ void write_dir(const char *name, uint32_t pino, uint32_t ino, uint32_t timestamp
     rd.pino = cpu_to_je32(pino);
     rd.version = cpu_to_je32(1);
     rd.ino = cpu_to_je32(ino);
-	rd.mctime = cpu_to_je32(0);//st_mtime
+    rd.mctime = cpu_to_je32(timestamp);//st_mtime
 	rd.nsize = strlen(name);
 	rd.type = 4;
 	//rd.unused[0] = 0;
@@ -982,7 +973,7 @@ void write_file(const char *name, const unsigned char *buff, size_t size,
     } else {
         unsigned char *tbuf = (unsigned char *)buff;
 		uint32_t ver = 0, woff = 0;
-		unsigned char *buf, *cbuf, *wbuf;
+        unsigned char *cbuf, *wbuf;
 		while (size) {
 			uint32_t dsize, space;
 			uint16_t compression;
@@ -1004,8 +995,8 @@ void write_file(const char *name, const unsigned char *buff, size_t size,
 			ri.totlen = cpu_to_je32(sizeof(ri) + space);
 			ri.hdr_crc = cpu_to_je32(mtd_crc32(0,
 						&ri, sizeof(struct jffs2_unknown_node) - 4));
-
-			ri.version = cpu_to_je32(++ver);
+            ++ver;
+            ri.version = cpu_to_je32(ver);
 			ri.offset = cpu_to_je32(woff);
 			ri.csize = cpu_to_je32(space);
 			ri.dsize = cpu_to_je32(dsize);

@@ -389,7 +389,7 @@ protected:
                             QMessageBox::critical(this, tr("Error"), tr("Unsupported operation!"));
                             return;
                         }
-                        if(size != 0) {
+                        if(type == FSViewModel::FSView_DIR && size != 0) {
                             QMessageBox::critical(this, tr("Error"), tr("Now only support delete empty dir!"));
                             return;
                         }
@@ -411,9 +411,9 @@ protected:
                         QFileInfo info(this->windowTitle());
                         int ret = -1;
                         if(fsView) {
-                            if(type != FSViewModel::FSView_DIR ) {
+                            if(type == FSViewModel::FSView_DIR ) {
                                 ret = fsView->removeDirFSImg(path);
-                            } else if(type != FSViewModel::FSView_REG_FILE) {
+                            } else if(type == FSViewModel::FSView_REG_FILE) {
                                 ret = fsView->removeFileFSImg(path);
                             }
                             if(ret == 0) {
@@ -424,7 +424,7 @@ protected:
                             }
                         }
                         if(ret == 0) {
-                            QMessageBox::information(this, tr("Information"), tr("Delete dir success!"));
+                            QMessageBox::information(this, tr("Information"), tr("Delete success!"));
                         } else {
                             QMessageBox::critical(this, tr("Error"), tr("Unsupported operation!"));
                         }

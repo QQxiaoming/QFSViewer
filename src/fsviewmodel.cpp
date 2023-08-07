@@ -92,7 +92,8 @@ int Ext4FSViewModel::fs_create_dir(QString path) {
 }
 
 int Ext4FSViewModel::fs_remove_dir(QString path) {
-    ext4_dir_rm(path.toStdString().c_str());
+    int ret = ext4_dir_rm(path.toStdString().c_str());
+    qDebug() << ret;
     return 0;
 }
 
