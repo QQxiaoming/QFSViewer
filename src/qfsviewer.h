@@ -6,6 +6,7 @@
 #include <QCloseEvent>
 #include <QApplication>
 #include <QDialog>
+#include <QInputDialog>
 #include <QMessageBox>
 #include <QFileInfo>
 #include <QDateTime>
@@ -294,6 +295,114 @@ protected:
                             QFileInfo savePath(filePath);
                             if(m_configFile) m_configFile->config_dict.lastFilePath = savePath.absolutePath();
                             QMessageBox::information(this, tr("Information"), tr("Import file success!"));
+                        } else {
+                            QMessageBox::critical(this, tr("Error"), tr("Unsupported operation!"));
+                        }
+                    }
+                );
+
+                QAction *pNew_Dir= new QAction(tr("New Dir"), this);
+                pNew_Dir->setIcon(QIcon(QFontIcon::icon(QChar(0xf0f6))));
+                contextMenu->addAction(pNew_Dir);
+                connect(pNew_Dir,&QAction::triggered,this,
+                [&,tIndex](void)
+                    {
+                        int wret = QMessageBox::warning(this,"Warning","In principle, this software does not provide the function of modifying the disk image. If you use this function, please remember to back up your files, and this software does not guarantee the strict correctness of the import.\nPlease choose whether to continue.", QMessageBox::Yes, QMessageBox::No);
+                        if(wret == QMessageBox::No) {
+                            return;
+                        }
+
+                        QString name;
+                        int type = FSViewModel::FSView_UNKNOWN;
+                        mode->info(tIndex, type, name);
+                        QString path = name;
+                        std::function<QModelIndex(QModelIndex,QString &)> get_parent = [&](QModelIndex index, QString &name) -> QModelIndex {
+                            if(index.isValid() && index.parent().isValid()) {
+                                QString pname;
+                                int type = FSViewModel::FSView_UNKNOWN;
+                                QModelIndex parent = index.parent();
+                                mode->info(parent, type, pname);
+                                name = (pname == "/")?(pname + name):(pname + "/" + name);
+                                return get_parent(parent, name);
+                            } else {
+                                return QModelIndex();
+                            }
+                        };
+                        get_parent(tIndex, path);
+                        if(type == FSViewModel::FSView_REG_FILE) {
+                            QFileInfo input_info(path);
+                            path = input_info.absolutePath();
+                        #if defined(Q_OS_WIN)
+                            path.replace("C:/","");
+                        #endif
+                        }
+                        QString fileName = QInputDialog::getText(this, tr("Enter Dir Name"), tr("Name"));
+                        if (fileName.isEmpty())
+                            return;
+                        path = (path=="/")?(path+fileName):(path+"/"+fileName);
+                        QFileInfo info(this->windowTitle());
+                        int ret = -1;
+                        if(fsView) {
+                            ret = fsView->createDirFSImg(path);
+                            if(ret == 0) {
+                                resetView();
+                                m_idle = false;
+                                fsView->setFSImgView(rootIndex);
+                                m_idle = true;
+                            }
+                        }
+                        if(ret == 0) {
+                            QMessageBox::information(this, tr("Information"), tr("Create dir success!"));
+                        } else {
+                            QMessageBox::critical(this, tr("Error"), tr("Unsupported operation!"));
+                        }
+                    }
+                );
+                QAction *pDel_Dir= new QAction(tr("Del Dir"), this);
+                pDel_Dir->setIcon(QIcon(QFontIcon::icon(QChar(0xf014))));
+                contextMenu->addAction(pDel_Dir);
+                connect(pDel_Dir,&QAction::triggered,this,
+                [&,tIndex](void)
+                    {
+                        int wret = QMessageBox::warning(this,"Warning","In principle, this software does not provide the function of modifying the disk image. If you use this function, please remember to back up your files, and this software does not guarantee the strict correctness of the import.\nPlease choose whether to continue.", QMessageBox::Yes, QMessageBox::No);
+                        if(wret == QMessageBox::No) {
+                            return;
+                        }
+
+                        QString name;
+                        int type = FSViewModel::FSView_UNKNOWN;
+                        mode->info(tIndex, type, name);
+                        if(type != FSViewModel::FSView_DIR) {
+                            QMessageBox::critical(this, tr("Error"), tr("Unsupported operation!"));
+                            return;
+                        }
+                        QString path = name;
+                        std::function<QModelIndex(QModelIndex,QString &)> get_parent = [&](QModelIndex index, QString &name) -> QModelIndex {
+                            if(index.isValid() && index.parent().isValid()) {
+                                QString pname;
+                                int type = FSViewModel::FSView_UNKNOWN;
+                                QModelIndex parent = index.parent();
+                                mode->info(parent, type, pname);
+                                name = (pname == "/")?(pname + name):(pname + "/" + name);
+                                return get_parent(parent, name);
+                            } else {
+                                return QModelIndex();
+                            }
+                        };
+                        get_parent(tIndex, path);
+                        QFileInfo info(this->windowTitle());
+                        int ret = -1;
+                        if(fsView) {
+                            ret = fsView->removeDirFSImg(path);
+                            if(ret == 0) {
+                                resetView();
+                                m_idle = false;
+                                fsView->setFSImgView(rootIndex);
+                                m_idle = true;
+                            }
+                        }
+                        if(ret == 0) {
+                            QMessageBox::information(this, tr("Information"), tr("Delete dir success!"));
                         } else {
                             QMessageBox::critical(this, tr("Error"), tr("Unsupported operation!"));
                         }

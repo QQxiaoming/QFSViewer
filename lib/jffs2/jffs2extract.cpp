@@ -763,11 +763,34 @@ struct jffs2_raw_dirent *resolvepath(uint32_t ino,
 	return resolvepath0(ino, p, inos, 0);
 }
 
-void write_dir(const char *name, 
-				uint32_t pino, uint32_t ino,
-				uint64_t offset, int add_cleanmarkers,int erase_block_size )
+uint16_t jffs2_compress( unsigned char *data_in, unsigned char **cpage_out,
+		uint32_t *datalen, uint32_t *cdatalen)
 {
-	struct jffs2_raw_dirent rd;
+	int ret = JFFS2_COMPR_NONE;
+	int compr_ret;
+	unsigned char *output_buf = NULL, *tmp_buf;
+	uint32_t orig_slen, orig_dlen;
+	uint32_t best_slen=0, best_dlen=0;
+
+	//switch (jffs2_compression_mode) {
+	//	case JFFS2_COMPR_MODE_NONE:
+	//		break;
+	//	default:
+	//		break;
+	//}
+
+	if (ret == JFFS2_COMPR_NONE) {
+		*cpage_out = data_in;
+		*datalen = *cdatalen;
+	}
+	else {
+		*cpage_out = output_buf;
+	}
+	return ret;
+}
+
+static uint64_t pre_pad_block(uint64_t offset, int req, int add_cleanmarkers, int erase_block_size)
+{
 	const static unsigned char ffbuf[16] =
 	{ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
 		0xff, 0xff, 0xff, 0xff, 0xff
@@ -775,26 +798,6 @@ void write_dir(const char *name,
 	static struct jffs2_unknown_node cleanmarker = {0};
 	static int cleanmarker_size = sizeof(cleanmarker);
 
-	memset(&rd, 0, sizeof(rd));
-
-	rd.magic = cpu_to_je16(JFFS2_MAGIC_BITMASK);
-	rd.nodetype = cpu_to_je16(JFFS2_NODETYPE_DIRENT);
-	rd.totlen = cpu_to_je32(sizeof(rd) + strlen(name));
-	rd.hdr_crc = cpu_to_je32(mtd_crc32(0, &rd,
-				sizeof(struct jffs2_unknown_node) - 4));
-    rd.pino = cpu_to_je32(pino);
-    rd.version = cpu_to_je32(1);
-    rd.ino = cpu_to_je32(ino);
-	rd.mctime = cpu_to_je32(0);//st_mtime
-	rd.nsize = strlen(name);
-	rd.type = 4;
-	//rd.unused[0] = 0;
-	//rd.unused[1] = 0;
-	rd.node_crc = cpu_to_je32(mtd_crc32(0, &rd, sizeof(rd) - 8));
-	rd.name_crc = cpu_to_je32(mtd_crc32(0, name, strlen(name)));
-
-
-	//pad_block_if_less_than(sizeof(rd) + rd.nsize);
 	if(erase_block_size) {
 		if (add_cleanmarkers) {
 			if ((offset % erase_block_size) == 0) {
@@ -818,7 +821,7 @@ void write_dir(const char *name,
 				}
 			}
 		}
-		if ((offset % erase_block_size) + sizeof(rd) + rd.nsize > erase_block_size) {
+		if ((offset % erase_block_size) + req > erase_block_size) {
 			while (offset % erase_block_size) {
 				memcpy(ram_disk_data + offset, ffbuf,  min(sizeof(ffbuf),
 							erase_block_size - (offset % erase_block_size)));
@@ -848,21 +851,57 @@ void write_dir(const char *name,
 			}
 		}
 	}
+	return offset;
+}
 
-	memcpy(ram_disk_data + offset, &rd,  sizeof(rd));
-	offset += sizeof(rd);
-	memcpy(ram_disk_data + offset, name, rd.nsize);
-	offset += rd.nsize;
-
-	//padword();
+static uint64_t post_pad_block(uint64_t offset)
+{
+	const static unsigned char ffbuf[16] =
+	{ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+		0xff, 0xff, 0xff, 0xff, 0xff
+	};
 	if (offset % 4) {
 		memcpy(ram_disk_data + offset, ffbuf, 4 - (offset % 4));
 		offset += 4 - (offset % 4);
 	}
+	return offset;
+}
+
+static uint64_t write_format_data(const uint8_t *data, uint64_t size, uint64_t offset)
+{
+	memcpy(ram_disk_data + offset, data, size);
+	offset += size;
+	return offset;
+}
+
+void write_dir(const char *name, uint32_t pino, uint32_t ino, uint32_t timestamp,
+				uint64_t offset, int add_cleanmarkers,int erase_block_size )
+{
+	struct jffs2_raw_dirent rd;
+	memset(&rd, 0, sizeof(rd));
+	rd.magic = cpu_to_je16(JFFS2_MAGIC_BITMASK);
+	rd.nodetype = cpu_to_je16(JFFS2_NODETYPE_DIRENT);
+	rd.totlen = cpu_to_je32(sizeof(rd) + strlen(name));
+	rd.hdr_crc = cpu_to_je32(mtd_crc32(0, &rd,
+				sizeof(struct jffs2_unknown_node) - 4));
+    rd.pino = cpu_to_je32(pino);
+    rd.version = cpu_to_je32(1);
+    rd.ino = cpu_to_je32(ino);
+	rd.mctime = cpu_to_je32(0);//st_mtime
+	rd.nsize = strlen(name);
+	rd.type = 4;
+	//rd.unused[0] = 0;
+	//rd.unused[1] = 0;
+	rd.node_crc = cpu_to_je32(mtd_crc32(0, &rd, sizeof(rd) - 8));
+	rd.name_crc = cpu_to_je32(mtd_crc32(0, name, strlen(name)));
+
+	offset = pre_pad_block(offset, sizeof(rd) + rd.nsize,add_cleanmarkers,erase_block_size);
+	offset = write_format_data((uint8_t *)&rd, sizeof(rd), offset);
+    offset = write_format_data((uint8_t *)name, rd.nsize, offset);
+    offset = post_pad_block(offset);
 
 	struct jffs2_raw_inode ri;
 	memset(&ri, 0, sizeof(ri));
-
 	ri.magic = cpu_to_je16(JFFS2_MAGIC_BITMASK);
 	ri.nodetype = cpu_to_je16(JFFS2_NODETYPE_INODE);
 	ri.totlen = cpu_to_je32(sizeof(ri));
@@ -882,85 +921,17 @@ void write_dir(const char *name,
 	ri.node_crc = cpu_to_je32(mtd_crc32(0, &ri, sizeof(ri) - 8));
 	ri.data_crc = cpu_to_je32(0);
 
-	//pad_block_if_less_than(sizeof(ri));
-	if(erase_block_size) {
-		if (add_cleanmarkers) {
-			if ((offset % erase_block_size) == 0) {
-				memcpy(ram_disk_data + offset, &cleanmarker,  sizeof(cleanmarker));
-				offset += sizeof(cleanmarker);
-				int req = cleanmarker_size - sizeof(cleanmarker);
-				while (req) {
-					if (req > sizeof(ffbuf)) {
-						memcpy(ram_disk_data + offset, ffbuf,  sizeof(ffbuf));
-						offset += sizeof(ffbuf);
-						req -= sizeof(ffbuf);
-					} else {
-						memcpy(ram_disk_data + offset, ffbuf, req);
-						offset += req;
-						req = 0;
-					}
-				}
-				if (offset % 4) {
-					memcpy(ram_disk_data + offset, ffbuf, 4 - (offset % 4));
-					offset += 4 - (offset % 4);
-				}
-			}
-		}
-		if ((offset % erase_block_size) + sizeof(ri) > erase_block_size) {
-			while (offset % erase_block_size) {
-				memcpy(ram_disk_data + offset, ffbuf,  min(sizeof(ffbuf),
-							erase_block_size - (offset % erase_block_size)));
-				offset += min(sizeof(ffbuf), erase_block_size - (offset % erase_block_size));
-			}
-		}
-		if (add_cleanmarkers) {
-			if ((offset % erase_block_size) == 0) {
-				memcpy(ram_disk_data + offset, &cleanmarker,  sizeof(cleanmarker));
-				offset += sizeof(cleanmarker);
-				int req = cleanmarker_size - sizeof(cleanmarker);
-				while (req) {
-					if (req > sizeof(ffbuf)) {
-						memcpy(ram_disk_data + offset, ffbuf,  sizeof(ffbuf));
-						offset += sizeof(ffbuf);
-						req -= sizeof(ffbuf);
-					} else {
-						memcpy(ram_disk_data + offset, ffbuf, req);
-						offset += req;
-						req = 0;
-					}
-				}
-				if (offset % 4) {
-					memcpy(ram_disk_data + offset, ffbuf, 4 - (offset % 4));
-					offset += 4 - (offset % 4);
-				}
-			}
-		}
-	}
-
-	memcpy(ram_disk_data + offset, &ri, sizeof(ri));
-	offset += sizeof(ri);
-
-	//padword();
-	if (offset % 4) {
-		memcpy(ram_disk_data + offset, ffbuf, 4 - (offset % 4));
-		offset += 4 - (offset % 4);
-	}
+    offset = pre_pad_block(offset, sizeof(ri),add_cleanmarkers,erase_block_size);
+	offset = write_format_data((uint8_t *)&ri, sizeof(ri), offset);
+	offset = post_pad_block(offset);
 }
 
-void write_file(const char *name, 
-				uint32_t pino, uint32_t ino,
+void write_file(const char *name, const unsigned char *buff, size_t size, 
+				uint32_t pino, uint32_t ino, uint32_t timestamp,
 				uint64_t offset, int add_cleanmarkers,int erase_block_size )
 {
 	struct jffs2_raw_dirent rd;
-	const static unsigned char ffbuf[16] =
-	{ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-		0xff, 0xff, 0xff, 0xff, 0xff
-	};
-	static struct jffs2_unknown_node cleanmarker = {0};
-	static int cleanmarker_size = sizeof(cleanmarker);
-
 	memset(&rd, 0, sizeof(rd));
-
 	rd.magic = cpu_to_je16(JFFS2_MAGIC_BITMASK);
 	rd.nodetype = cpu_to_je16(JFFS2_NODETYPE_DIRENT);
 	rd.totlen = cpu_to_je32(sizeof(rd) + strlen(name));
@@ -977,159 +948,83 @@ void write_file(const char *name,
 	rd.node_crc = cpu_to_je32(mtd_crc32(0, &rd, sizeof(rd) - 8));
 	rd.name_crc = cpu_to_je32(mtd_crc32(0, name, strlen(name)));
 
-
-	//pad_block_if_less_than(sizeof(rd) + rd.nsize);
-	if(erase_block_size) {
-		if (add_cleanmarkers) {
-			if ((offset % erase_block_size) == 0) {
-				memcpy(ram_disk_data + offset, &cleanmarker,  sizeof(cleanmarker));
-				offset += sizeof(cleanmarker);
-				int req = cleanmarker_size - sizeof(cleanmarker);
-				while (req) {
-					if (req > sizeof(ffbuf)) {
-						memcpy(ram_disk_data + offset, ffbuf,  sizeof(ffbuf));
-						offset += sizeof(ffbuf);
-						req -= sizeof(ffbuf);
-					} else {
-						memcpy(ram_disk_data + offset, ffbuf, req);
-						offset += req;
-						req = 0;
-					}
-				}
-				if (offset % 4) {
-					memcpy(ram_disk_data + offset, ffbuf, 4 - (offset % 4));
-					offset += 4 - (offset % 4);
-				}
-			}
-		}
-		if ((offset % erase_block_size) + sizeof(rd) + rd.nsize > erase_block_size) {
-			while (offset % erase_block_size) {
-				memcpy(ram_disk_data + offset, ffbuf,  min(sizeof(ffbuf),
-							erase_block_size - (offset % erase_block_size)));
-				offset += min(sizeof(ffbuf), erase_block_size - (offset % erase_block_size));
-			}
-		}
-		if (add_cleanmarkers) {
-			if ((offset % erase_block_size) == 0) {
-				memcpy(ram_disk_data + offset, &cleanmarker,  sizeof(cleanmarker));
-				offset += sizeof(cleanmarker);
-				int req = cleanmarker_size - sizeof(cleanmarker);
-				while (req) {
-					if (req > sizeof(ffbuf)) {
-						memcpy(ram_disk_data + offset, ffbuf,  sizeof(ffbuf));
-						offset += sizeof(ffbuf);
-						req -= sizeof(ffbuf);
-					} else {
-						memcpy(ram_disk_data + offset, ffbuf, req);
-						offset += req;
-						req = 0;
-					}
-				}
-				if (offset % 4) {
-					memcpy(ram_disk_data + offset, ffbuf, 4 - (offset % 4));
-					offset += 4 - (offset % 4);
-				}
-			}
-		}
-	}
-
-	memcpy(ram_disk_data + offset, &rd,  sizeof(rd));
-	offset += sizeof(rd);
-	memcpy(ram_disk_data + offset, name, rd.nsize);
-	offset += rd.nsize;
-
-	//padword();
-	if (offset % 4) {
-		memcpy(ram_disk_data + offset, ffbuf, 4 - (offset % 4));
-		offset += 4 - (offset % 4);
-	}
+	offset = pre_pad_block(offset, sizeof(rd) + rd.nsize,add_cleanmarkers,erase_block_size);
+	offset = write_format_data((uint8_t *)&rd, sizeof(rd), offset);
+	offset = write_format_data((uint8_t *)name, rd.nsize, offset);
+	offset = post_pad_block(offset);
 
 	struct jffs2_raw_inode ri;
 	memset(&ri, 0, sizeof(ri));
-
 	ri.magic = cpu_to_je16(JFFS2_MAGIC_BITMASK);
 	ri.nodetype = cpu_to_je16(JFFS2_NODETYPE_INODE);
-
 	ri.ino = cpu_to_je32(ino);
 	ri.mode = cpu_to_jemode(S_IFREG);//st_mode
 	ri.uid = cpu_to_je16(0);//st_uid
 	ri.gid = cpu_to_je16(0);//st_gid
-	ri.atime = cpu_to_je32(0);//st_atime
-	ri.ctime = cpu_to_je32(0);//st_ctime
-	ri.mtime = cpu_to_je32(0);//st_mtime
-	ri.isize = cpu_to_je32(0);
+	ri.atime = cpu_to_je32(timestamp);//st_atime
+	ri.ctime = cpu_to_je32(timestamp);//st_ctime
+	ri.mtime = cpu_to_je32(timestamp);//st_mtime
+	ri.isize = cpu_to_je32(size);
 
-	/* Was empty file */
-	ri.version = cpu_to_je32(1);
-	ri.totlen = cpu_to_je32(sizeof(ri));
-	ri.hdr_crc = cpu_to_je32(mtd_crc32(0,
-				&ri, sizeof(struct jffs2_unknown_node) - 4));
-	ri.csize = cpu_to_je32(0);
-	ri.dsize = cpu_to_je32(0);
-	ri.node_crc = cpu_to_je32(mtd_crc32(0, &ri, sizeof(ri) - 8));
+	if(size == 0) {
+		/* Was empty file */
+		ri.version = cpu_to_je32(1);
+		ri.totlen = cpu_to_je32(sizeof(ri));
+		ri.hdr_crc = cpu_to_je32(mtd_crc32(0,
+					&ri, sizeof(struct jffs2_unknown_node) - 4));
+		ri.csize = cpu_to_je32(0);
+		ri.dsize = cpu_to_je32(0);
+		ri.node_crc = cpu_to_je32(mtd_crc32(0, &ri, sizeof(ri) - 8));
 
-	//pad_block_if_less_than(sizeof(ri));
-	if(erase_block_size) {
-		if (add_cleanmarkers) {
-			if ((offset % erase_block_size) == 0) {
-				memcpy(ram_disk_data + offset, &cleanmarker,  sizeof(cleanmarker));
-				offset += sizeof(cleanmarker);
-				int req = cleanmarker_size - sizeof(cleanmarker);
-				while (req) {
-					if (req > sizeof(ffbuf)) {
-						memcpy(ram_disk_data + offset, ffbuf,  sizeof(ffbuf));
-						offset += sizeof(ffbuf);
-						req -= sizeof(ffbuf);
-					} else {
-						memcpy(ram_disk_data + offset, ffbuf, req);
-						offset += req;
-						req = 0;
-					}
-				}
-				if (offset % 4) {
-					memcpy(ram_disk_data + offset, ffbuf, 4 - (offset % 4));
-					offset += 4 - (offset % 4);
-				}
+		offset = pre_pad_block(offset, sizeof(ri),add_cleanmarkers,erase_block_size);
+		offset = write_format_data((uint8_t *)&ri, sizeof(ri), offset);
+		offset = post_pad_block(offset);
+    } else {
+        unsigned char *tbuf = (unsigned char *)buff;
+		uint32_t ver = 0, woff = 0;
+		unsigned char *buf, *cbuf, *wbuf;
+		while (size) {
+			uint32_t dsize, space;
+			uint16_t compression;
+			offset = pre_pad_block(offset, sizeof(ri) + JFFS2_MIN_DATA_LEN,add_cleanmarkers,erase_block_size);
+			dsize = size;
+            space = erase_block_size - (offset % erase_block_size) - sizeof(ri);
+			if (space > dsize)
+				space = dsize;
+			compression = jffs2_compress(tbuf, &cbuf, &dsize, &space);
+			ri.compr = compression & 0xff;
+			ri.usercompr = (compression >> 8) & 0xff;
+
+			if (ri.compr) {
+				wbuf = cbuf;
+			} else {
+				wbuf = tbuf;
+				dsize = space;
 			}
-		}
-		if ((offset % erase_block_size) + sizeof(ri) > erase_block_size) {
-			while (offset % erase_block_size) {
-				memcpy(ram_disk_data + offset, ffbuf,  min(sizeof(ffbuf),
-							erase_block_size - (offset % erase_block_size)));
-				offset += min(sizeof(ffbuf), erase_block_size - (offset % erase_block_size));
-			}
-		}
-		if (add_cleanmarkers) {
-			if ((offset % erase_block_size) == 0) {
-				memcpy(ram_disk_data + offset, &cleanmarker,  sizeof(cleanmarker));
-				offset += sizeof(cleanmarker);
-				int req = cleanmarker_size - sizeof(cleanmarker);
-				while (req) {
-					if (req > sizeof(ffbuf)) {
-						memcpy(ram_disk_data + offset, ffbuf,  sizeof(ffbuf));
-						offset += sizeof(ffbuf);
-						req -= sizeof(ffbuf);
-					} else {
-						memcpy(ram_disk_data + offset, ffbuf, req);
-						offset += req;
-						req = 0;
-					}
-				}
-				if (offset % 4) {
-					memcpy(ram_disk_data + offset, ffbuf, 4 - (offset % 4));
-					offset += 4 - (offset % 4);
-				}
-			}
-		}
-	}
+			ri.totlen = cpu_to_je32(sizeof(ri) + space);
+			ri.hdr_crc = cpu_to_je32(mtd_crc32(0,
+						&ri, sizeof(struct jffs2_unknown_node) - 4));
 
-	memcpy(ram_disk_data + offset, &ri, sizeof(ri));
-	offset += sizeof(ri);
+			ri.version = cpu_to_je32(++ver);
+			ri.offset = cpu_to_je32(woff);
+			ri.csize = cpu_to_je32(space);
+			ri.dsize = cpu_to_je32(dsize);
+			ri.node_crc = cpu_to_je32(mtd_crc32(0, &ri, sizeof(ri) - 8));
+			ri.data_crc = cpu_to_je32(mtd_crc32(0, wbuf, space));
 
-	//padword();
-	if (offset % 4) {
-		memcpy(ram_disk_data + offset, ffbuf, 4 - (offset % 4));
-		offset += 4 - (offset % 4);
+			offset = write_format_data((uint8_t *)&ri, sizeof(ri), offset);
+			offset = write_format_data((uint8_t *)wbuf, space, offset);
+			offset = post_pad_block(offset);
+
+			if (tbuf != cbuf) {
+				free(cbuf);
+				cbuf = NULL;
+			}
+
+			tbuf += dsize;
+			size -= dsize;
+			woff += dsize;
+		}
 	}
 }
 

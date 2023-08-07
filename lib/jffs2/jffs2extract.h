@@ -29,11 +29,10 @@ struct dir *collectdir(uint32_t ino, struct dir *d);
 void freedir(struct dir *);
 
 void find_free(uint32_t *ino, uint64_t *offset);
-void write_dir(const char *name,
-				uint32_t pino, uint32_t ino,
+void write_dir(const char *name, uint32_t pino, uint32_t ino, uint32_t timestamp,
 				uint64_t offset, int add_cleanmarkers,int erase_block_size );
-void write_file(const char *name, 
-				uint32_t pino, uint32_t ino,
+void write_file(const char *name, const unsigned char *buff, size_t size, 
+				uint32_t pino, uint32_t ino, uint32_t timestamp,
 				uint64_t offset, int add_cleanmarkers,int erase_block_size );
 void jffs2_init(uint8_t * data, uint64_t data_size);
 
