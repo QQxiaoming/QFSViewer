@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string notr="true"/>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -26,21 +26,21 @@
          <item>
           <widget class="QRadioButton" name="radioButton_jffs2">
            <property name="text">
-            <string>jffs2</string>
+            <string notr="true">jffs2</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QRadioButton" name="radioButton_fat">
            <property name="text">
-            <string>fatX(12/16/32)</string>
+            <string notr="true">fatX(12/16/32)</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QRadioButton" name="radioButton_exfat">
            <property name="text">
-            <string>exfat</string>
+            <string notr="true">exfat</string>
            </property>
           </widget>
          </item>
@@ -51,21 +51,21 @@
          <item>
           <widget class="QRadioButton" name="radioButton_ext4">
            <property name="text">
-            <string>ext4</string>
+            <string notr="true">ext4</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QRadioButton" name="radioButton_ext3">
            <property name="text">
-            <string>ext3</string>
+            <string notr="true">ext3</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QRadioButton" name="radioButton_ext2">
            <property name="text">
-            <string>ext2</string>
+            <string notr="true">ext2</string>
            </property>
           </widget>
          </item>
@@ -82,7 +82,7 @@
       <item>
        <widget class="QPushButton" name="pushButton">
         <property name="text">
-         <string>...</string>
+         <string notr="true">...</string>
         </property>
        </widget>
       </item>
@@ -119,7 +119,7 @@
      <x>0</x>
      <y>0</y>
      <width>373</width>
-     <height>30</height>
+     <height>36</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHelp">

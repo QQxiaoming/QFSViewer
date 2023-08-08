@@ -88,112 +88,72 @@
     <message>
         <location filename="../src/qfsviewer.cpp" line="241"/>
         <source>Create</source>
-        <translation type="unfinished"></translation>
+        <translation>新建</translation>
     </message>
     <message>
         <location filename="../src/qfsviewer.cpp" line="279"/>
         <source>Enter Dir Name</source>
-        <translation type="unfinished"></translation>
+        <translation>输入目录名称</translation>
     </message>
     <message>
         <location filename="../src/qfsviewer.cpp" line="279"/>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>名称</translation>
     </message>
     <message>
         <location filename="../src/qfsviewer.cpp" line="282"/>
         <source>Can&apos;t create dir!</source>
-        <translation type="unfinished"></translation>
+        <translation>无法创建目录！</translation>
     </message>
     <message>
         <location filename="../src/qfsviewer.cpp" line="300"/>
         <source>Create dir success!</source>
-        <translation type="unfinished"></translation>
+        <translation>创建目录成功！</translation>
     </message>
     <message>
         <location filename="../src/qfsviewer.cpp" line="306"/>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>删除</translation>
     </message>
     <message>
         <location filename="../src/qfsviewer.cpp" line="326"/>
         <source>Now only support delete empty dir!</source>
-        <translation type="unfinished"></translation>
+        <translation>现在只支持删除空目录！</translation>
     </message>
     <message>
         <location filename="../src/qfsviewer.cpp" line="361"/>
         <source>Delete success!</source>
-        <translation type="unfinished"></translation>
+        <translation>削除成功！</translation>
     </message>
     <message>
         <location filename="../src/qfsviewer.cpp" line="378"/>
         <source>Loading, please wait...</source>
-        <translation type="unfinished"></translation>
+        <translation>加载中请稍候...</translation>
     </message>
 </context>
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../src/mainwindow.ui" line="14"/>
-        <source>MainWindow</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../src/mainwindow.ui" line="21"/>
         <source>FileSystemType</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mainwindow.ui" line="29"/>
-        <source>jffs2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mainwindow.ui" line="36"/>
-        <source>fatX(12/16/32)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mainwindow.ui" line="43"/>
-        <source>exfat</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mainwindow.ui" line="54"/>
-        <source>ext4</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mainwindow.ui" line="61"/>
-        <source>ext3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mainwindow.ui" line="68"/>
-        <source>ext2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mainwindow.ui" line="85"/>
-        <source>...</source>
-        <translation type="unfinished"></translation>
+        <translation>文件系统类型</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="127"/>
         <location filename="../src/mainwindow.ui" line="138"/>
         <source>Help</source>
-        <translation type="unfinished"></translation>
+        <translation>帮助</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="143"/>
         <location filename="../src/mainwindow.cpp" line="145"/>
         <source>About</source>
-        <translation type="unfinished"></translation>
+        <translation>关于</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.ui" line="148"/>
         <source>AboutQt</source>
-        <translation type="unfinished"></translation>
+        <translation>关于Qt</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="135"/>
@@ -202,12 +162,16 @@
 3.Right-click on the file to export the file.
 4.Right-click the file/directory, we can import files, create a new directory, delete a directory (these functions are experimental, because the original image file may be destroyed, please make sure to back it up before use).
 </source>
-        <translation type="unfinished"></translation>
+        <translation>1.选择要打开的文件系统原始映像文件所在路径。
+2.点击确认按钮，完成加载并显示文件系统内容。
+3.右键点击文件，可以导出文件。
+4.右键点击文件/目录，可以导入文件，新建目录，删除目录（这些功能是实验性的，因为可能会破坏原image文件，使用前请务必备份）。
+</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="146"/>
         <source>&lt;p&gt;Version&lt;/p&gt;&lt;p&gt;&amp;nbsp;%1&lt;/p&gt;&lt;p&gt;Commit&lt;/p&gt;&lt;p&gt;&amp;nbsp;%2&lt;/p&gt;&lt;p&gt;Author&lt;/p&gt;&lt;p&gt;&amp;nbsp;qiaoqm@aliyun.com&lt;/p&gt;&lt;p&gt;Website&lt;/p&gt;&lt;p&gt;&amp;nbsp;&lt;a href=&apos;https://github.com/QQxiaoming/QFSViewer&apos;&gt;https://github.com/QQxiaoming&lt;/p&gt;&lt;p&gt;&amp;nbsp;&lt;a href=&apos;https://gitee.com/QQxiaoming/QFSViewer&apos;&gt;https://gitee.com/QQxiaoming&lt;/a&gt;&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;版本&lt;/p&gt;&lt;p&gt;&amp;nbsp;%1&lt;/p&gt;&lt;p&gt;提交&lt;/p&gt;&lt;p&gt;&amp;nbsp;%2&lt;/p&gt;&lt;p&gt;作者&lt;/p&gt;&lt;p&gt;&amp;nbsp;qiaoqm@aliyun.com&lt;/p&gt;&lt;p&gt;主页&lt;/p&gt;&lt;p&gt;&amp;nbsp;&lt;a href=&apos;https://github.com/QQxiaoming/QFSViewer&apos;&gt;https://github.com/QQxiaoming&lt;/p&gt;&lt;p&gt;&amp;nbsp;&lt;a href=&apos;https://gitee.com/QQxiaoming/QFSViewer&apos;&gt;https://gitee.com/QQxiaoming&lt;/a&gt;&lt;/p&gt;</translation>
     </message>
 </context>
 <context>
@@ -215,55 +179,55 @@
     <message>
         <location filename="../src/treemodel.cpp" line="103"/>
         <source>Root</source>
-        <translation type="unfinished"></translation>
+        <translation>根目录</translation>
     </message>
     <message>
         <location filename="../src/treemodel.cpp" line="109"/>
         <source>File</source>
-        <translation type="unfinished"></translation>
+        <translation>文件</translation>
     </message>
     <message>
         <location filename="../src/treemodel.cpp" line="131"/>
         <source>Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>目录</translation>
     </message>
     <message>
         <location filename="../src/treemodel.cpp" line="137"/>
         <location filename="../src/treemodel.cpp" line="141"/>
         <source>Device</source>
-        <translation type="unfinished"></translation>
+        <translation>设备</translation>
     </message>
     <message>
         <location filename="../src/treemodel.cpp" line="145"/>
         <location filename="../src/treemodel.cpp" line="149"/>
         <location filename="../src/treemodel.cpp" line="153"/>
         <source>Link</source>
-        <translation type="unfinished"></translation>
+        <translation>链接</translation>
     </message>
     <message>
         <location filename="../src/treemodel.cpp" line="167"/>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>未知</translation>
     </message>
     <message>
         <location filename="../src/treemodel.cpp" line="290"/>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>名称</translation>
     </message>
     <message>
         <location filename="../src/treemodel.cpp" line="292"/>
         <source>Kind</source>
-        <translation type="unfinished"></translation>
+        <translation>类型</translation>
     </message>
     <message>
         <location filename="../src/treemodel.cpp" line="294"/>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>大小</translation>
     </message>
     <message>
         <location filename="../src/treemodel.cpp" line="296"/>
         <source>Date</source>
-        <translation type="unfinished"></translation>
+        <translation>日期</translation>
     </message>
 </context>
 </TS>

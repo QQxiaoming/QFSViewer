@@ -20,6 +20,7 @@ export QML2_IMPORT_PATH=$QT_DIR/qml
 QFSVIEWER_VERSION="V"$QFSVIEWER_MAJARVERSION$QFSVIEWER_SUBVERSION$QFSVIEWER_REVISION
 # 编译
 rm -rf .qmake.stash Makefile
+lrelease ./QFSViewer.pro
 qmake ./QFSViewer.pro -spec linux-g++ CONFIG+=qtquickcompiler
 make clean
 make -j8 

@@ -22,6 +22,7 @@ if exist ".\build_debug" (
 if exist ".\build_release" (
     rmdir /Q /S .\build_release
 )
+lrelease QFSViewer.pro
 qmake QFSViewer.pro -spec win32-g++
 mingw32-make -j8
 :: clean打包目录
