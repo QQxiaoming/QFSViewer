@@ -532,6 +532,34 @@ struct dir *collectdir(uint32_t ino, struct dir *d)
 	return d;
 }
 
+int deletenode(uint32_t ino)
+{
+	int ret = -1;
+	union jffs2_node_union *e = (union jffs2_node_union *) (ram_disk_data + ram_disk_size);
+    union jffs2_node_union *n = (union jffs2_node_union *) ram_disk_data;
+	do {
+		while (n < e && je16_to_cpu(n->u.magic) != JFFS2_MAGIC_BITMASK)
+			ADD_BYTES(n, 4);
+
+		if (n < e && je16_to_cpu(n->u.magic) == JFFS2_MAGIC_BITMASK) {
+			if(je16_to_cpu(n->u.nodetype) == JFFS2_NODETYPE_DIRENT) {
+				if(ino == je32_to_cpu(n->d.ino)) {
+                    n->u.magic = cpu_to_je16(0);
+					ret = 0;
+				}
+			} else if (je16_to_cpu(n->u.nodetype) == JFFS2_NODETYPE_INODE) {
+				if(ino == je32_to_cpu(n->i.ino)) {
+                    n->u.magic = cpu_to_je16(0);
+					ret = 0;
+				}
+			}
+			ADD_BYTES(n, ((je32_to_cpu(n->u.totlen) + 3) & ~3));
+		} else
+			break;
+    } while (1);
+	return ret;
+}
+
 void find_free(uint32_t *ino, uint64_t *offset)
 {
 	union jffs2_node_union *e = (union jffs2_node_union *) (ram_disk_data + ram_disk_size);

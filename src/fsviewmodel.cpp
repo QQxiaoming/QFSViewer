@@ -394,13 +394,63 @@ int Jffs2FSViewModel::fs_create_dir(QString path) {
 }
 
 int Jffs2FSViewModel::fs_remove_dir(QString path) {
-    Q_UNUSED(path);
-    return -1;
+    struct jffs2_raw_dirent *dd;
+    uint32_t ino;
+    int ret = -1;
+    dd = resolvepath(1, path.toStdString().c_str(), &ino);
+    if (ino == 0 || (dd == NULL && ino == 0))
+        qWarning("No such file or directory");
+    else if ((dd == NULL && ino != 0) || (dd != NULL && dd->type == 4)) {
+        ret = deletenode(ino);
+    }
+    return ret;
 }
 
 int Jffs2FSViewModel::fs_remove_file(QString path) {
-    Q_UNUSED(path);
-    return -1;
+    QFileInfo output_info(path);
+    QString output_path = output_info.absolutePath();
+    QString output_name = output_info.fileName();
+#if defined(Q_OS_WIN)
+    output_path.replace("C:/","");
+#endif
+
+    struct jffs2_raw_dirent *dd;
+    struct dir *d = NULL;
+    uint32_t ino;
+    int ret = -1;
+    dd = resolvepath(1, output_path.toStdString().c_str(), &ino);
+    if (ino == 0 || (dd == NULL && ino == 0))
+        qWarning("No such file or directory");
+    else if ((dd == NULL && ino != 0) || (dd != NULL && dd->type == 4)) {
+        d = collectdir( ino, d);
+        struct jffs2_raw_inode *ri, *tmpi;
+        while (d != NULL) {
+            ri = find_raw_inode( d->ino, 0);
+            if (!ri) {
+                qWarning("bug: raw_inode missing!");
+                d = d->next;
+                continue;
+            }
+
+            uint32_t len = 0;
+            tmpi = ri;
+            while (tmpi) {
+                len = je32_to_cpu(tmpi->dsize) + je32_to_cpu(tmpi->offset);
+                tmpi = find_raw_inode(d->ino, je32_to_cpu(tmpi->version));
+            }
+            uint32_t timestamp = je32_to_cpu(ri->ctime);
+            QString filename(QByteArray(d->name,d->nsize));
+            if(d->type == 8) {
+                if(filename == output_name) {
+                    ret = deletenode(d->ino);
+                    break;
+                }
+            }
+            d = d->next;
+        }
+        freedir(d);
+    }
+    return ret;
 }
 
 void Jffs2FSViewModel::listFSAll(QString path, QModelIndex index) {
