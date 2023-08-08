@@ -432,13 +432,10 @@ int Jffs2FSViewModel::fs_remove_file(QString path) {
                 continue;
             }
 
-            uint32_t len = 0;
             tmpi = ri;
             while (tmpi) {
-                len = je32_to_cpu(tmpi->dsize) + je32_to_cpu(tmpi->offset);
                 tmpi = find_raw_inode(d->ino, je32_to_cpu(tmpi->version));
             }
-            uint32_t timestamp = je32_to_cpu(ri->ctime);
             QString filename(QByteArray(d->name,d->nsize));
             if(d->type == 8) {
                 if(filename == output_name) {
