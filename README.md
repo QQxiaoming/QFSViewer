@@ -20,6 +20,8 @@ QFSViewer is a small tool for developers to view the contents of various file sy
 
 ![img1](./img/docimg1.png)
 
+![img2](./img/docimg2.png)
+
 ## Feature
 
 1. Select the path where the file system raw image file to be opened is located.
