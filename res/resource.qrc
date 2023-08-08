@@ -2,4 +2,9 @@
     <qresource prefix="/">
         <file>../img/fontawesome-webfont.ttf</file>
     </qresource>
+    <qresource prefix="/lang">
+        <file>../lang/qfsviewer_zh_CN.qm</file>
+        <file>../lang/qfsviewer_ja_JP.qm</file>
+        <file>../lang/qfsviewer_en_US.qm</file>
+    </qresource>
 </RCC>

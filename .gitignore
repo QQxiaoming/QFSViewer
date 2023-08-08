@@ -61,3 +61,6 @@ CMakeLists.txt.user*
 git_tag.inc
 git_tag.ci.inc
 .DS_Store
+lang/qfsviewer_en_US.qm
+lang/qfsviewer_ja_JP.qm
+lang/qfsviewer_zh_CN.qm

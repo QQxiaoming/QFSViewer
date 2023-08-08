@@ -54,6 +54,11 @@ FORMS += \
 RESOURCES += \
         res/resource.qrc
 
+TRANSLATIONS += \
+    lang/qfsviewer_zh_CN.ts \
+    lang/qfsviewer_ja_JP.ts \
+    lang/qfsviewer_en_US.ts
+
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin

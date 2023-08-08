@@ -4,6 +4,7 @@
 #include <QMessageBox>
 #include <QApplication>
 #include <QString>
+#include <QTranslator>
 #include <iostream>
 
 #include "qfonticon.h"
@@ -131,11 +132,11 @@ void MainWindow::on_buttonBox_rejected()
 
 void MainWindow::on_actionHelp_triggered()
 {
-    QMessageBox::question(this, "Help", 
-        "1.主界面选择数据参数。\n"
-        "2.点击打开文件或文件夹将进行固件映像数据解析并显示解析结果。\n"
-        "3.右键点击文件，可以导出文件。\n"
-        "4.右键点击文件/目录，可以导入文件，新建目录，删除目录（这些功能是实验性的，因为可能会破坏原image文件，使用前请务必备份）。\n",
+    QMessageBox::question(this, "Help", tr(
+        "1.Select the path where the file system raw image file to be opened is located.\n"
+        "2.Click the confirm button to complete the loading and display the file system contents.\n"
+        "3.Right-click on the file to export the file.\n"
+        "4.Right-click the file/directory, we can import files, create a new directory, delete a directory (these functions are experimental, because the original image file may be destroyed, please make sure to back it up before use).\n"),
          QMessageBox::StandardButtons(QMessageBox::Ok));
 }
 
@@ -161,6 +162,10 @@ void MainWindow::on_actionAboutQt_triggered()
     QMessageBox::aboutQt(this);
 }
 
+static QTranslator qtTranslator;
+static QTranslator qtbaseTranslator;
+static QTranslator appTranslator;
+
 int main(int argc, char *argv[])
 {
     if(argc == 2) {
@@ -179,6 +184,41 @@ int main(int argc, char *argv[])
     QApplication::setOrganizationName("Copyright (c) 2023 Quard(QiaoQiming)");
     QApplication::setOrganizationDomain("https://github.com/QQxiaoming/QFSViewer");
     QApplication::setApplicationVersion(VERSION+" "+GIT_TAG);
+
+    QLocale locale;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    QString qlibpath = QLibraryInfo::path(QLibraryInfo::TranslationsPath);
+#else
+    QString qlibpath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
+#endif
+    QLocale::Language lang = locale.language();
+    switch(lang) {
+    case QLocale::Chinese:
+        if(qtTranslator.load("qt_zh_CN.qm",qlibpath))
+            application.installTranslator(&qtTranslator);
+        if(qtbaseTranslator.load("qtbase_zh_CN.qm",qlibpath))
+            application.installTranslator(&qtbaseTranslator);
+        if(appTranslator.load(":/lang/lang/qfsviewer_zh_CN.qm"))
+            application.installTranslator(&appTranslator);
+        break;
+    case QLocale::Japanese:
+        if(qtTranslator.load("qt_ja.qm",qlibpath))
+            application.installTranslator(&qtTranslator);
+        if(qtbaseTranslator.load("qtbase_ja.qm",qlibpath))
+            application.installTranslator(&qtbaseTranslator);
+        if(appTranslator.load(":/lang/lang/qfsviewer_ja_JP.qm"))
+            application.installTranslator(&appTranslator);
+        break;
+    default:
+    case QLocale::English:
+        if(qtTranslator.load("qt_en.qm",qlibpath))
+            application.installTranslator(&qtTranslator);
+        if(qtbaseTranslator.load("qtbase_en.qm",qlibpath))
+            application.installTranslator(&qtbaseTranslator);
+        if(appTranslator.load(":/lang/lang/qfsviewer_en_US.qm"))
+            application.installTranslator(&appTranslator);
+        break;
+    }
 
     int text_hsv_value = QPalette().color(QPalette::WindowText).value();
     int bg_hsv_value = QPalette().color(QPalette::Window).value();
