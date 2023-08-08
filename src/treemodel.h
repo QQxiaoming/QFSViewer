@@ -37,6 +37,7 @@ public:
     QModelIndex addTree(QString str, int type, uint64_t size, uint32_t timestamp, const QModelIndex &parent) ;
     void removeTree(QModelIndex &parent) ;
 	void info(const QModelIndex &index, int &type, QString &name, uint64_t &size);
+	QModelIndex findItems(QString str, QModelIndex &index);
 
 	void dumpTreeItems() ;
 

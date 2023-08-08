@@ -376,6 +376,21 @@ void TreeModel::removeTree(QModelIndex &index)
 	removeRows(index.row(), 1, index.parent()) ;
 }
 
+QModelIndex TreeModel::findItems(QString str, QModelIndex &index)
+{
+	TreeItem *p = m_pRootItem ;
+	if ( index.isValid() ) {
+		p = static_cast<TreeItem *>(index.internalPointer()) ;
+	}
+	for ( int i = 0 ; i < p->childCount() ; i ++ ) {
+		TreeItem *c = p->child(i);
+		if(c->data() == str) {
+			return createIndex(c->row(), 0, c) ;
+		}
+	}
+	return QModelIndex();
+}
+
 void TreeModel::dumpTreeItems()
 {
 	TreeItem *p = m_pRootItem ;

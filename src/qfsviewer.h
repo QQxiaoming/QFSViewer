@@ -156,6 +156,25 @@ private:
         expand(rootIndex);
     }
 
+    void expand_recursive(QString path) {
+        QStringList list = path.split("/");
+        qDebug() << list;
+        QModelIndex pIndexes = rootIndex;
+        foreach (QString item, list) {
+            if(item == "")  {
+                expand(pIndexes);
+                continue;
+            }
+            QModelIndex cIndexes = mode->findItems(item,pIndexes);
+            if(cIndexes.isValid()) {
+                expand(cIndexes);
+                pIndexes = cIndexes;
+            } else {
+                break;
+            }
+        }
+    }
+
     void setFSImgView(QString rootFSImgPath,uint64_t offset, uint64_t size,QString type) {
         resetView();
         m_idle = false;
@@ -293,6 +312,7 @@ protected:
                                 resetView();
                                 m_idle = false;
                                 fsView->setFSImgView(rootIndex);
+                                expand_recursive(path);
                                 m_idle = true;
                             }
                         }
@@ -360,6 +380,7 @@ protected:
                                 resetView();
                                 m_idle = false;
                                 fsView->setFSImgView(rootIndex);
+                                expand_recursive(path);
                                 m_idle = true;
                             }
                         }
@@ -420,6 +441,7 @@ protected:
                                 resetView();
                                 m_idle = false;
                                 fsView->setFSImgView(rootIndex);
+                                expand_recursive(path);
                                 m_idle = true;
                             }
                         }

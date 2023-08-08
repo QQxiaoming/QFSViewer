@@ -25,6 +25,7 @@ QFSViewer is a small tool for developers to view the contents of various file sy
 1. Select the path where the file system raw image file to be opened is located.
 2. Click the confirm button to complete the loading and display the file system contents.
 3. Right click on the file to export the file.
+4. Right-click the file/directory, we can import files, create a new directory, delete a directory (these functions are experimental, because the original image file may be destroyed, please make sure to back it up before use).
 
 ## Format
 

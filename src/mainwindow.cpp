@@ -123,7 +123,9 @@ void MainWindow::on_actionHelp_triggered()
 {
     QMessageBox::question(this, "Help", 
         "1.主界面选择数据参数。\n"
-        "2.点击打开文件或文件夹将进行固件映像数据解析并显示解析结果。\n",
+        "2.点击打开文件或文件夹将进行固件映像数据解析并显示解析结果。\n"
+        "3.右键点击文件，可以导出文件。\n"
+        "4.右键点击文件/目录，可以导入文件，新建目录，删除目录（这些功能是实验性的，因为可能会破坏原image文件，使用前请务必备份）。\n",
          QMessageBox::StandardButtons(QMessageBox::Ok));
 }
 
