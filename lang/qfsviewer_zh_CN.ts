@@ -123,7 +123,7 @@
     <message>
         <location filename="../src/qfsviewer.cpp" line="361"/>
         <source>Delete success!</source>
-        <translation>削除成功！</translation>
+        <translation>删除成功！</translation>
     </message>
     <message>
         <location filename="../src/qfsviewer.cpp" line="378"/>
