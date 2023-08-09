@@ -119,7 +119,7 @@ void FSViewWindow::contextMenuEvent(QContextMenuEvent *event) {
             if(contextMenu) delete contextMenu;
             contextMenu = new QMenu(this); 
 
-            QAction *pExport= new QAction(tr("Export"), this);
+            QAction *pExport= new QAction(tr("Export"), contextMenu);
             pExport->setIcon(QIcon(QFontIcon::icon(QChar(0xf019))));
             contextMenu->addAction(pExport);
             connect(pExport,&QAction::triggered,this,
@@ -169,7 +169,7 @@ void FSViewWindow::contextMenuEvent(QContextMenuEvent *event) {
                 }
             );
 
-            QAction *pImport= new QAction(tr("Import"), this);
+            QAction *pImport= new QAction(tr("Import"), contextMenu);
             pImport->setIcon(QIcon(QFontIcon::icon(QChar(0xf093))));
             contextMenu->addAction(pImport);
             connect(pImport,&QAction::triggered,this,
@@ -238,7 +238,7 @@ void FSViewWindow::contextMenuEvent(QContextMenuEvent *event) {
                 }
             );
 
-            QAction *pCreate= new QAction(tr("Create"), this);
+            QAction *pCreate= new QAction(tr("Create"), contextMenu);
             pCreate->setIcon(QIcon(QFontIcon::icon(QChar(0xf0f6))));
             contextMenu->addAction(pCreate);
             connect(pCreate,&QAction::triggered,this,
@@ -303,7 +303,7 @@ void FSViewWindow::contextMenuEvent(QContextMenuEvent *event) {
                     }
                 }
             );
-            QAction *pDelete= new QAction(tr("Delete"), this);
+            QAction *pDelete= new QAction(tr("Delete"), contextMenu);
             pDelete->setIcon(QIcon(QFontIcon::icon(QChar(0xf014))));
             contextMenu->addAction(pDelete);
             connect(pDelete,&QAction::triggered,this,
