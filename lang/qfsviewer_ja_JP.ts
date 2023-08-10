@@ -9,124 +9,124 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="122"/>
+        <location filename="../src/qfsviewer.cpp" line="121"/>
         <source>Export</source>
         <translation>輸出</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="148"/>
-        <location filename="../src/qfsviewer.cpp" line="163"/>
-        <location filename="../src/qfsviewer.cpp" line="166"/>
-        <location filename="../src/qfsviewer.cpp" line="215"/>
-        <location filename="../src/qfsviewer.cpp" line="236"/>
-        <location filename="../src/qfsviewer.cpp" line="282"/>
-        <location filename="../src/qfsviewer.cpp" line="302"/>
-        <location filename="../src/qfsviewer.cpp" line="322"/>
-        <location filename="../src/qfsviewer.cpp" line="326"/>
-        <location filename="../src/qfsviewer.cpp" line="363"/>
+        <location filename="../src/qfsviewer.cpp" line="147"/>
+        <location filename="../src/qfsviewer.cpp" line="162"/>
+        <location filename="../src/qfsviewer.cpp" line="165"/>
+        <location filename="../src/qfsviewer.cpp" line="214"/>
+        <location filename="../src/qfsviewer.cpp" line="235"/>
+        <location filename="../src/qfsviewer.cpp" line="281"/>
+        <location filename="../src/qfsviewer.cpp" line="301"/>
+        <location filename="../src/qfsviewer.cpp" line="321"/>
+        <location filename="../src/qfsviewer.cpp" line="325"/>
+        <location filename="../src/qfsviewer.cpp" line="362"/>
         <source>Error</source>
         <translation>エラー</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="148"/>
+        <location filename="../src/qfsviewer.cpp" line="147"/>
         <source>Exporting dirs is not currently supported!</source>
         <translation>ディレクトリのエクスポートは現在サポートされていません。</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="151"/>
+        <location filename="../src/qfsviewer.cpp" line="150"/>
         <source>Save File</source>
         <translation>ファイルを保存</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="161"/>
-        <location filename="../src/qfsviewer.cpp" line="234"/>
-        <location filename="../src/qfsviewer.cpp" line="300"/>
-        <location filename="../src/qfsviewer.cpp" line="361"/>
-        <location filename="../src/qfsviewer.cpp" line="378"/>
+        <location filename="../src/qfsviewer.cpp" line="160"/>
+        <location filename="../src/qfsviewer.cpp" line="233"/>
+        <location filename="../src/qfsviewer.cpp" line="299"/>
+        <location filename="../src/qfsviewer.cpp" line="360"/>
+        <location filename="../src/qfsviewer.cpp" line="377"/>
         <source>Information</source>
         <translation>情報</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="161"/>
+        <location filename="../src/qfsviewer.cpp" line="160"/>
         <source>Export file success!</source>
         <translation>ファイルのエクスポートが成功しました。</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="163"/>
-        <location filename="../src/qfsviewer.cpp" line="166"/>
+        <location filename="../src/qfsviewer.cpp" line="162"/>
+        <location filename="../src/qfsviewer.cpp" line="165"/>
         <source>Can&apos;t export file!</source>
         <translation>ファイルをエクスポートできません!</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="172"/>
+        <location filename="../src/qfsviewer.cpp" line="171"/>
         <source>Import</source>
         <translation>輸入</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="209"/>
+        <location filename="../src/qfsviewer.cpp" line="208"/>
         <source>Open File</source>
         <translation>ファイルを開く</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="215"/>
+        <location filename="../src/qfsviewer.cpp" line="214"/>
         <source>Can&apos;t import file!</source>
         <translation>ファイルをインポートできません!</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="234"/>
+        <location filename="../src/qfsviewer.cpp" line="233"/>
         <source>Import file success!</source>
         <translation>ファイルのインポートが成功しました。</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="236"/>
-        <location filename="../src/qfsviewer.cpp" line="302"/>
-        <location filename="../src/qfsviewer.cpp" line="322"/>
-        <location filename="../src/qfsviewer.cpp" line="363"/>
+        <location filename="../src/qfsviewer.cpp" line="235"/>
+        <location filename="../src/qfsviewer.cpp" line="301"/>
+        <location filename="../src/qfsviewer.cpp" line="321"/>
+        <location filename="../src/qfsviewer.cpp" line="362"/>
         <source>Unsupported operation!</source>
         <translation>サポートされていない操作です!</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="241"/>
+        <location filename="../src/qfsviewer.cpp" line="240"/>
         <source>Create</source>
         <translation>新しい</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="279"/>
+        <location filename="../src/qfsviewer.cpp" line="278"/>
         <source>Enter Dir Name</source>
         <translation>ディレクトリ名を入力してください</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="279"/>
+        <location filename="../src/qfsviewer.cpp" line="278"/>
         <source>Name</source>
         <translation>名前</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="282"/>
+        <location filename="../src/qfsviewer.cpp" line="281"/>
         <source>Can&apos;t create dir!</source>
         <translation>ディレクトリを作成できません!</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="300"/>
+        <location filename="../src/qfsviewer.cpp" line="299"/>
         <source>Create dir success!</source>
         <translation>ディレクトリの作成が成功しました!</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="306"/>
+        <location filename="../src/qfsviewer.cpp" line="305"/>
         <source>Delete</source>
         <translation>消去</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="326"/>
+        <location filename="../src/qfsviewer.cpp" line="325"/>
         <source>Now only support delete empty dir!</source>
         <translation>空のディレクトリの削除のみをサポートするようになりました。</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="361"/>
+        <location filename="../src/qfsviewer.cpp" line="360"/>
         <source>Delete success!</source>
         <translation>削除成功！</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="378"/>
+        <location filename="../src/qfsviewer.cpp" line="377"/>
         <source>Loading, please wait...</source>
         <translation>読み込み中。。。待って下さい...</translation>
     </message>
@@ -177,55 +177,55 @@
 <context>
     <name>TreeModel</name>
     <message>
-        <location filename="../src/treemodel.cpp" line="103"/>
+        <location filename="../src/treemodel.cpp" line="104"/>
         <source>Root</source>
         <translation>ルートディレクトリ</translation>
     </message>
     <message>
-        <location filename="../src/treemodel.cpp" line="109"/>
+        <location filename="../src/treemodel.cpp" line="110"/>
         <source>File</source>
         <translation>ファイル</translation>
     </message>
     <message>
-        <location filename="../src/treemodel.cpp" line="131"/>
+        <location filename="../src/treemodel.cpp" line="132"/>
         <source>Directory</source>
         <translation>ディレクトリ</translation>
     </message>
     <message>
-        <location filename="../src/treemodel.cpp" line="137"/>
-        <location filename="../src/treemodel.cpp" line="141"/>
+        <location filename="../src/treemodel.cpp" line="138"/>
+        <location filename="../src/treemodel.cpp" line="142"/>
         <source>Device</source>
         <translation>デバイス</translation>
     </message>
     <message>
-        <location filename="../src/treemodel.cpp" line="145"/>
-        <location filename="../src/treemodel.cpp" line="149"/>
-        <location filename="../src/treemodel.cpp" line="153"/>
+        <location filename="../src/treemodel.cpp" line="146"/>
+        <location filename="../src/treemodel.cpp" line="150"/>
+        <location filename="../src/treemodel.cpp" line="154"/>
         <source>Link</source>
         <translation>リンク</translation>
     </message>
     <message>
-        <location filename="../src/treemodel.cpp" line="167"/>
+        <location filename="../src/treemodel.cpp" line="168"/>
         <source>Unknown</source>
         <translation>知らない</translation>
     </message>
     <message>
-        <location filename="../src/treemodel.cpp" line="290"/>
+        <location filename="../src/treemodel.cpp" line="291"/>
         <source>Name</source>
         <translation>名前</translation>
     </message>
     <message>
-        <location filename="../src/treemodel.cpp" line="292"/>
+        <location filename="../src/treemodel.cpp" line="293"/>
         <source>Kind</source>
         <translation>タイプ</translation>
     </message>
     <message>
-        <location filename="../src/treemodel.cpp" line="294"/>
+        <location filename="../src/treemodel.cpp" line="295"/>
         <source>Size</source>
         <translation>大小</translation>
     </message>
     <message>
-        <location filename="../src/treemodel.cpp" line="296"/>
+        <location filename="../src/treemodel.cpp" line="297"/>
         <source>Date</source>
         <translation>日にち</translation>
     </message>
