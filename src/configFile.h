@@ -31,6 +31,8 @@ public:
         QString lastPath;
         QString lastFilePath;
         QString fsType;
+        QString offset;
+        QString size;
     }config_dict_t;
     config_dict_t config_dict;
 

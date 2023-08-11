@@ -40,7 +40,7 @@ public:
     ~MainWindow();
     
 private:
-    void do_list_fs(const QString &imgFile);
+    void do_list_fs(const QString &imgFile, uint64_t offset, uint64_t size);
 
 private slots:
     void on_pushButton_clicked();

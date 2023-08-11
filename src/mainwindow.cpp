@@ -70,6 +70,16 @@ MainWindow::MainWindow(QWidget *parent) :
     } else {
         ui->lineEdit->setText(QFSViewerConfigFile->config_dict.lastPath);
     }
+    if(QFSViewerConfigFile->config_dict.offset.isEmpty()) {
+        ui->lineEdit_offset->setText("");
+    } else {
+        ui->lineEdit_offset->setText(QFSViewerConfigFile->config_dict.offset);
+    }
+    if(QFSViewerConfigFile->config_dict.size.isEmpty()) {
+        ui->lineEdit_size->setText("");
+    } else {
+        ui->lineEdit_size->setText(QFSViewerConfigFile->config_dict.size);
+    }
 
     fsView = new FSViewWindow(QFSViewerConfigFile, this);
 
@@ -89,7 +99,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::do_list_fs(const QString &imgFile)
+void MainWindow::do_list_fs(const QString &imgFile, uint64_t offset, uint64_t size)
 {
     QString imgType;
     foreach (QString key, fsTypeMap.keys()) {
@@ -101,16 +111,17 @@ void MainWindow::do_list_fs(const QString &imgFile)
 
     QFSViewerConfigFile->config_dict.lastPath = imgFile;
     QFSViewerConfigFile->config_dict.fsType = imgType;
+    QFSViewerConfigFile->config_dict.offset = ui->lineEdit_offset->text();
+    QFSViewerConfigFile->config_dict.size = ui->lineEdit_size->text();
 
-    QFileInfo info(imgFile);
     this->hide();
     fsView->show();
     if(imgType == "jffs2") {
-        fsView->setJffs2FSImgView(imgFile,0,info.size());
+        fsView->setJffs2FSImgView(imgFile,offset,size);
     } else if((imgType == "fatX") || (imgType == "exfat")) {
-        fsView->setFatFSImgView(imgFile,0,info.size());
+        fsView->setFatFSImgView(imgFile,offset,size);
     } else if((imgType == "ext4") || (imgType == "ext3") || (imgType == "ext2")) {
-        fsView->setExt4FSImgView(imgFile,0,info.size());
+        fsView->setExt4FSImgView(imgFile,offset,size);
     }
 }
 
@@ -126,9 +137,40 @@ void MainWindow::on_pushButton_clicked()
         QMessageBox::warning(this, "Error", "File not exist!");
         return;
     }
+
+    QString offset = ui->lineEdit_offset->text();
+    uint64_t offsetNum = 0;
+    if(!offset.isEmpty()) {
+        bool isNum = false;
+        offsetNum = offset.toULongLong(&isNum);
+        if(!isNum) {
+            QMessageBox::warning(this, "Error", "Offset must be a number!");
+            return;
+        }
+    }
+
+    QString size = ui->lineEdit_size->text();
+    uint64_t sizeNum = info.size() - offsetNum;
+    if(!size.isEmpty()) {
+        bool isNum = false;
+        sizeNum = size.toULongLong(&isNum);
+        if(!isNum) {
+            QMessageBox::warning(this, "Error", "Size must be a number!");
+            return;
+        }
+    }
+    sizeNum = qMin(sizeNum, info.size() - offsetNum);
+    if(sizeNum == 0) {
+        QMessageBox::warning(this, "Error", "Size must be greater than 0!");
+        return;
+    }
+    if(!size.isEmpty()) {
+        ui->lineEdit_size->setText(QString::number(sizeNum));
+    }
+
     ui->lineEdit->setText(imgFile);
 
-    do_list_fs(imgFile);
+    do_list_fs(imgFile, offsetNum, sizeNum);
 }
 
 
@@ -140,7 +182,38 @@ void MainWindow::on_buttonBox_accepted()
         QMessageBox::warning(this, "Error", "File not exist!");
         return;
     }
-    do_list_fs(imgFile);
+
+    QString offset = ui->lineEdit_offset->text();
+    uint64_t offsetNum = 0;
+    if(!offset.isEmpty()) {
+        bool isNum = false;
+        offsetNum = offset.toULongLong(&isNum);
+        if(!isNum) {
+            QMessageBox::warning(this, "Error", "Offset must be a number!");
+            return;
+        }
+    }
+
+    QString size = ui->lineEdit_size->text();
+    uint64_t sizeNum = info.size() - offsetNum;
+    if(!size.isEmpty()) {
+        bool isNum = false;
+        sizeNum = size.toULongLong(&isNum);
+        if(!isNum) {
+            QMessageBox::warning(this, "Error", "Size must be a number!");
+            return;
+        }
+    }
+    sizeNum = qMin(sizeNum, info.size() - offsetNum);
+    if(sizeNum == 0) {
+        QMessageBox::warning(this, "Error", "Size must be greater than 0!");
+        return;
+    }
+    if(!size.isEmpty()) {
+        ui->lineEdit_size->setText(QString::number(sizeNum));
+    }
+
+    do_list_fs(imgFile, offsetNum, sizeNum);
 }
 
 

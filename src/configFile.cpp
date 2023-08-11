@@ -39,6 +39,8 @@ ConfigFile::ConfigFile(const QString &path) :
         writer.writeTextElement("lastPath", config_dict.lastPath);
         writer.writeTextElement("lastFilePath", config_dict.lastFilePath);
         writer.writeTextElement("fsType", config_dict.fsType);
+        writer.writeTextElement("offset", config_dict.offset);
+        writer.writeTextElement("size", config_dict.size);
         writer.writeEndElement();
         writer.writeEndDocument();
         file.close();
@@ -55,6 +57,10 @@ ConfigFile::ConfigFile(const QString &path) :
                     config_dict.lastFilePath = reader.readElementText();
                 } else if(reader.name().toString() == "fsType") {
                     config_dict.fsType = reader.readElementText();
+                } else if(reader.name().toString() == "offset") {
+                    config_dict.offset = reader.readElementText();
+                } else if(reader.name().toString() == "size") {
+                    config_dict.size = reader.readElementText();
                 }
             }
             reader.readNext();
@@ -75,6 +81,8 @@ ConfigFile::~ConfigFile() {
     writer.writeTextElement("lastPath", config_dict.lastPath);
     writer.writeTextElement("lastFilePath", config_dict.lastFilePath);
     writer.writeTextElement("fsType", config_dict.fsType);
+    writer.writeTextElement("offset", config_dict.offset);
+    writer.writeTextElement("size", config_dict.size);
     writer.writeEndElement();
     writer.writeEndDocument();
     file.close();
