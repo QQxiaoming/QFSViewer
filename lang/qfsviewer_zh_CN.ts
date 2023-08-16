@@ -9,124 +9,124 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="140"/>
+        <location filename="../src/qfsviewer.cpp" line="144"/>
         <source>Export</source>
         <translation>导出</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="166"/>
-        <location filename="../src/qfsviewer.cpp" line="181"/>
-        <location filename="../src/qfsviewer.cpp" line="184"/>
-        <location filename="../src/qfsviewer.cpp" line="233"/>
-        <location filename="../src/qfsviewer.cpp" line="254"/>
-        <location filename="../src/qfsviewer.cpp" line="300"/>
-        <location filename="../src/qfsviewer.cpp" line="320"/>
-        <location filename="../src/qfsviewer.cpp" line="340"/>
+        <location filename="../src/qfsviewer.cpp" line="170"/>
+        <location filename="../src/qfsviewer.cpp" line="185"/>
+        <location filename="../src/qfsviewer.cpp" line="188"/>
+        <location filename="../src/qfsviewer.cpp" line="237"/>
+        <location filename="../src/qfsviewer.cpp" line="258"/>
+        <location filename="../src/qfsviewer.cpp" line="304"/>
+        <location filename="../src/qfsviewer.cpp" line="324"/>
         <location filename="../src/qfsviewer.cpp" line="344"/>
-        <location filename="../src/qfsviewer.cpp" line="381"/>
+        <location filename="../src/qfsviewer.cpp" line="348"/>
+        <location filename="../src/qfsviewer.cpp" line="385"/>
         <source>Error</source>
         <translation>错误</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="166"/>
+        <location filename="../src/qfsviewer.cpp" line="170"/>
         <source>Exporting dirs is not currently supported!</source>
         <translation>目前不支持导出目录！</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="169"/>
+        <location filename="../src/qfsviewer.cpp" line="173"/>
         <source>Save File</source>
         <translation>保存文件</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="179"/>
-        <location filename="../src/qfsviewer.cpp" line="252"/>
-        <location filename="../src/qfsviewer.cpp" line="318"/>
-        <location filename="../src/qfsviewer.cpp" line="379"/>
-        <location filename="../src/qfsviewer.cpp" line="396"/>
+        <location filename="../src/qfsviewer.cpp" line="183"/>
+        <location filename="../src/qfsviewer.cpp" line="256"/>
+        <location filename="../src/qfsviewer.cpp" line="322"/>
+        <location filename="../src/qfsviewer.cpp" line="383"/>
+        <location filename="../src/qfsviewer.cpp" line="400"/>
         <source>Information</source>
         <translation>信息</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="179"/>
+        <location filename="../src/qfsviewer.cpp" line="183"/>
         <source>Export file success!</source>
         <translation>导出文件成功！</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="181"/>
-        <location filename="../src/qfsviewer.cpp" line="184"/>
+        <location filename="../src/qfsviewer.cpp" line="185"/>
+        <location filename="../src/qfsviewer.cpp" line="188"/>
         <source>Can&apos;t export file!</source>
         <translation>无法导出文件！</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="190"/>
+        <location filename="../src/qfsviewer.cpp" line="194"/>
         <source>Import</source>
         <translation>导入</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="227"/>
+        <location filename="../src/qfsviewer.cpp" line="231"/>
         <source>Open File</source>
         <translation>打开文件</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="233"/>
+        <location filename="../src/qfsviewer.cpp" line="237"/>
         <source>Can&apos;t import file!</source>
         <translation>无法导入文件！</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="252"/>
+        <location filename="../src/qfsviewer.cpp" line="256"/>
         <source>Import file success!</source>
         <translation>导入文件成功！</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="254"/>
-        <location filename="../src/qfsviewer.cpp" line="320"/>
-        <location filename="../src/qfsviewer.cpp" line="340"/>
-        <location filename="../src/qfsviewer.cpp" line="381"/>
+        <location filename="../src/qfsviewer.cpp" line="258"/>
+        <location filename="../src/qfsviewer.cpp" line="324"/>
+        <location filename="../src/qfsviewer.cpp" line="344"/>
+        <location filename="../src/qfsviewer.cpp" line="385"/>
         <source>Unsupported operation!</source>
         <translation>不支持操作！</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="259"/>
+        <location filename="../src/qfsviewer.cpp" line="263"/>
         <source>Create</source>
         <translation>新建</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="297"/>
+        <location filename="../src/qfsviewer.cpp" line="301"/>
         <source>Enter Dir Name</source>
         <translation>输入目录名称</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="297"/>
+        <location filename="../src/qfsviewer.cpp" line="301"/>
         <source>Name</source>
         <translation>名称</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="300"/>
+        <location filename="../src/qfsviewer.cpp" line="304"/>
         <source>Can&apos;t create dir!</source>
         <translation>无法创建目录！</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="318"/>
+        <location filename="../src/qfsviewer.cpp" line="322"/>
         <source>Create dir success!</source>
         <translation>创建目录成功！</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="324"/>
+        <location filename="../src/qfsviewer.cpp" line="328"/>
         <source>Delete</source>
         <translation>删除</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="344"/>
+        <location filename="../src/qfsviewer.cpp" line="348"/>
         <source>Now only support delete empty dir!</source>
         <translation>现在只支持删除空目录！</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="379"/>
+        <location filename="../src/qfsviewer.cpp" line="383"/>
         <source>Delete success!</source>
         <translation>删除成功！</translation>
     </message>
     <message>
-        <location filename="../src/qfsviewer.cpp" line="396"/>
+        <location filename="../src/qfsviewer.cpp" line="400"/>
         <source>Loading, please wait...</source>
         <translation>加载中请稍候...</translation>
     </message>

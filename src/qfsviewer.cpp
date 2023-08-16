@@ -46,6 +46,10 @@ FSViewWindow::FSViewWindow(ConfigFile *configFile, QWidget *parent) :
     setColumnWidth(1,80);
     setColumnWidth(2,80);
     setColumnWidth(3,150);
+    setUniformRowHeights(true);
+    setWordWrap(false);
+    setSortingEnabled(false);
+    setAllColumnsShowFocus(true);
     resize(QSize(800,600));
     QRect screen = QGuiApplication::screenAt(this->mapToGlobal(QPoint(this->width()/2,0)))->geometry();
     QRect size = this->geometry();
