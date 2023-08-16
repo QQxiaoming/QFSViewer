@@ -116,12 +116,18 @@ void MainWindow::do_list_fs(const QString &imgFile, uint64_t offset, uint64_t si
 
     this->hide();
     fsView->show();
+    int ret = -1;
     if(imgType == "jffs2") {
-        fsView->setJffs2FSImgView(imgFile,offset,size);
+        ret = fsView->setJffs2FSImgView(imgFile,offset,size);
     } else if((imgType == "fatX") || (imgType == "exfat")) {
-        fsView->setFatFSImgView(imgFile,offset,size);
+        ret = fsView->setFatFSImgView(imgFile,offset,size);
     } else if((imgType == "ext4") || (imgType == "ext3") || (imgType == "ext2")) {
-        fsView->setExt4FSImgView(imgFile,offset,size);
+        ret = fsView->setExt4FSImgView(imgFile,offset,size);
+    }
+    if(ret != 0) {
+        QMessageBox::warning(this, tr("Error"), tr("Load file system failed!"));
+        fsView->hide();
+        this->show();
     }
 }
 
