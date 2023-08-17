@@ -42,6 +42,31 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowTitle("FSView");
+
+    QLocale locale;
+    QLocale::Language lang = locale.language();
+    switch(lang) {
+    case QLocale::Chinese:
+        ui->actionChinese->setChecked(true);
+        break;
+    case QLocale::Japanese:
+        ui->actionJapanese->setChecked(true);
+        break;
+    default:
+    case QLocale::English:
+        ui->actionEnglish->setChecked(true);
+        break;
+    }
+   
+    int text_hsv_value = QPalette().color(QPalette::WindowText).value();
+    int bg_hsv_value = QPalette().color(QPalette::Window).value();
+    bool isDarkTheme = text_hsv_value > bg_hsv_value?true:false;
+    QString themeName;
+    if(isDarkTheme) {
+        ui->actionDark->setChecked(true);
+    } else {
+        ui->actionLight->setChecked(true);
+    }
     
     QRect screen = QGuiApplication::screenAt(this->mapToGlobal(QPoint(this->width()/2,0)))->geometry();
     QRect size = this->geometry();
@@ -260,9 +285,126 @@ void MainWindow::on_actionAboutQt_triggered()
     QMessageBox::aboutQt(this);
 }
 
-static QTranslator qtTranslator;
-static QTranslator qtbaseTranslator;
-static QTranslator appTranslator;
+static void setAppLangeuage(QLocale::Language lang)
+{
+    static QTranslator *qtTranslator = nullptr;
+    static QTranslator *qtbaseTranslator = nullptr;
+    static QTranslator *appTranslator = nullptr;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    QString qlibpath = QLibraryInfo::path(QLibraryInfo::TranslationsPath);
+#else
+    QString qlibpath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
+#endif
+    if(qtTranslator == nullptr) {
+        qtTranslator = new QTranslator(qApp);
+    } else {
+        qApp->removeTranslator(qtTranslator);
+        delete qtTranslator;
+        qtTranslator = new QTranslator(qApp);
+    }
+    if(qtbaseTranslator == nullptr) {
+        qtbaseTranslator = new QTranslator(qApp);
+    } else {
+        qApp->removeTranslator(qtbaseTranslator);
+        delete qtbaseTranslator;
+        qtbaseTranslator = new QTranslator(qApp);
+    }
+    if(appTranslator == nullptr) {
+        appTranslator = new QTranslator(qApp);
+    } else {
+        qApp->removeTranslator(appTranslator);
+        delete appTranslator;
+        appTranslator = new QTranslator(qApp);
+    }
+    switch(lang) {
+    case QLocale::Chinese:
+        if(qtTranslator->load("qt_zh_CN.qm",qlibpath))
+            qApp->installTranslator(qtTranslator);
+        if(qtbaseTranslator->load("qtbase_zh_CN.qm",qlibpath))
+            qApp->installTranslator(qtbaseTranslator);
+        if(appTranslator->load(":/lang/lang/qfsviewer_zh_CN.qm"))
+            qApp->installTranslator(appTranslator);
+        break;
+    case QLocale::Japanese:
+        if(qtTranslator->load("qt_ja.qm",qlibpath))
+            qApp->installTranslator(qtTranslator);
+        if(qtbaseTranslator->load("qtbase_ja.qm",qlibpath))
+            qApp->installTranslator(qtbaseTranslator);
+        if(appTranslator->load(":/lang/lang/qfsviewer_ja_JP.qm"))
+            qApp->installTranslator(appTranslator);
+        break;
+    default:
+    case QLocale::English:
+        if(qtTranslator->load("qt_en.qm",qlibpath))
+            qApp->installTranslator(qtTranslator);
+        if(qtbaseTranslator->load("qtbase_en.qm",qlibpath))
+            qApp->installTranslator(qtbaseTranslator);
+        if(appTranslator->load(":/lang/lang/qfsviewer_en_US.qm"))
+            qApp->installTranslator(appTranslator);
+        break;
+    }
+}
+
+void MainWindow::on_actionEnglish_triggered()
+{
+    setAppLangeuage(QLocale::English);
+    ui->actionChinese->setChecked(false);
+    ui->actionEnglish->setChecked(true);
+    ui->actionJapanese->setChecked(false);
+    ui->retranslateUi(this);
+}
+
+void MainWindow::on_actionChinese_triggered()
+{
+    setAppLangeuage(QLocale::Chinese);
+    ui->actionChinese->setChecked(true);
+    ui->actionEnglish->setChecked(false);
+    ui->actionJapanese->setChecked(false);
+    ui->retranslateUi(this);
+}
+
+void MainWindow::on_actionJapanese_triggered()
+{
+    setAppLangeuage(QLocale::Japanese);
+    ui->actionChinese->setChecked(false);
+    ui->actionEnglish->setChecked(false);
+    ui->actionJapanese->setChecked(true);
+    ui->retranslateUi(this);
+}
+
+void MainWindow::on_actionDark_triggered()
+{
+    QFile ftheme(":/qdarkstyle/dark/darkstyle.qss");
+    if (!ftheme.exists())   {
+        qDebug() << "Unable to set stylesheet, file not found!";
+    } else {
+        ftheme.open(QFile::ReadOnly | QFile::Text);
+        QTextStream ts(&ftheme);
+        qApp->setStyleSheet(ts.readAll());
+    }
+
+    QFontIcon::addFont(":/img/fontawesome-webfont.ttf");
+    QFontIcon::instance()->setColor(Qt::white);
+    ui->actionDark->setChecked(true);
+    ui->actionLight->setChecked(false);
+}
+
+void MainWindow::on_actionLight_triggered()
+{
+    QFile ftheme(":/qdarkstyle/light/lightstyle.qss");
+    if (!ftheme.exists())   {
+        qDebug() << "Unable to set stylesheet, file not found!";
+    } else {
+        ftheme.open(QFile::ReadOnly | QFile::Text);
+        QTextStream ts(&ftheme);
+        qApp->setStyleSheet(ts.readAll());
+    }
+
+    QFontIcon::addFont(":/img/fontawesome-webfont.ttf");
+    QFontIcon::instance()->setColor(Qt::black);
+    ui->actionDark->setChecked(false);
+    ui->actionLight->setChecked(true);
+}
 
 int main(int argc, char *argv[])
 {
@@ -276,6 +418,10 @@ int main(int argc, char *argv[])
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 #endif
+    QApplication::setAttribute(Qt::AA_DontUseNativeDialogs);
+    QApplication::setAttribute(Qt::AA_DontUseNativeMenuBar);
+    QApplication::setAttribute(Qt::AA_DontCreateNativeWidgetSiblings);
+    
     QApplication application(argc, argv);
 
     QApplication::setApplicationName("QFSViewer");
@@ -284,44 +430,26 @@ int main(int argc, char *argv[])
     QApplication::setApplicationVersion(VERSION+" "+GIT_TAG);
 
     QLocale locale;
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    QString qlibpath = QLibraryInfo::path(QLibraryInfo::TranslationsPath);
-#else
-    QString qlibpath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
-#endif
     QLocale::Language lang = locale.language();
-    switch(lang) {
-    case QLocale::Chinese:
-        if(qtTranslator.load("qt_zh_CN.qm",qlibpath))
-            application.installTranslator(&qtTranslator);
-        if(qtbaseTranslator.load("qtbase_zh_CN.qm",qlibpath))
-            application.installTranslator(&qtbaseTranslator);
-        if(appTranslator.load(":/lang/lang/qfsviewer_zh_CN.qm"))
-            application.installTranslator(&appTranslator);
-        break;
-    case QLocale::Japanese:
-        if(qtTranslator.load("qt_ja.qm",qlibpath))
-            application.installTranslator(&qtTranslator);
-        if(qtbaseTranslator.load("qtbase_ja.qm",qlibpath))
-            application.installTranslator(&qtbaseTranslator);
-        if(appTranslator.load(":/lang/lang/qfsviewer_ja_JP.qm"))
-            application.installTranslator(&appTranslator);
-        break;
-    default:
-    case QLocale::English:
-        if(qtTranslator.load("qt_en.qm",qlibpath))
-            application.installTranslator(&qtTranslator);
-        if(qtbaseTranslator.load("qtbase_en.qm",qlibpath))
-            application.installTranslator(&qtbaseTranslator);
-        if(appTranslator.load(":/lang/lang/qfsviewer_en_US.qm"))
-            application.installTranslator(&appTranslator);
-        break;
-    }
+    setAppLangeuage(lang);
 
     int text_hsv_value = QPalette().color(QPalette::WindowText).value();
     int bg_hsv_value = QPalette().color(QPalette::Window).value();
     bool isDarkTheme = text_hsv_value > bg_hsv_value?true:false;
-
+    QString themeName;
+    if(isDarkTheme) {
+        themeName = ":/qdarkstyle/dark/darkstyle.qss";
+    } else {
+        themeName = ":/qdarkstyle/light/lightstyle.qss";
+    }
+    QFile ftheme(themeName);
+    if (!ftheme.exists())   {
+        qDebug() << "Unable to set stylesheet, file not found!";
+    } else {
+        ftheme.open(QFile::ReadOnly | QFile::Text);
+        QTextStream ts(&ftheme);
+        qApp->setStyleSheet(ts.readAll());
+    }
     QFontIcon::addFont(":/img/fontawesome-webfont.ttf");
     QFontIcon::instance()->setColor(isDarkTheme?Qt::white:Qt::black);
 
@@ -330,3 +458,4 @@ int main(int argc, char *argv[])
 
     return application.exec();
 }
+

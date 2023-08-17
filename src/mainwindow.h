@@ -51,6 +51,12 @@ private slots:
     void on_actionAbout_triggered();
     void on_actionAboutQt_triggered();
 
+    void on_actionEnglish_triggered();
+    void on_actionChinese_triggered();
+    void on_actionJapanese_triggered();
+    void on_actionDark_triggered();
+    void on_actionLight_triggered();
+
 private:
     FSViewWindow *fsView;
     QMap<QString, QRadioButton *> fsTypeMap;

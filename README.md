@@ -47,6 +47,7 @@ The current project is recommended to use version Qt6.2.0 or higher.
 
 ## Thanks
 
+- [QDarkStyleSheet](https://github.com/ColinDuquesnoy/QDarkStyleSheet)
 - [QFontIcon](https://github.com/dridk/QFontIcon)
 - [lwext4](https://github.com/gkostka/lwext4)
 - [ff15](http://elm-chan.org/fsw/ff/00index_e.html)

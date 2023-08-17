@@ -52,7 +52,9 @@ FORMS += \
         src/mainwindow.ui
 
 RESOURCES += \
-        res/resource.qrc
+        res/resource.qrc \
+        theme/dark/darkstyle.qrc \
+        theme/light/lightstyle.qrc
 
 TRANSLATIONS += \
     lang/qfsviewer_zh_CN.ts \

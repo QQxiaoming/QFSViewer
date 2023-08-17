@@ -47,6 +47,7 @@ jffs2\fat12\fat16\fat32\exfat\ext4\ext3\ext2
 
 ## 感谢
 
+- [QDarkStyleSheet](https://github.com/ColinDuquesnoy/QDarkStyleSheet)
 - [QFontIcon](https://github.com/dridk/QFontIcon)
 - [lwext4](https://github.com/gkostka/lwext4)
 - [ff15](http://elm-chan.org/fsw/ff/00index_e.html)
