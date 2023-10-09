@@ -7,7 +7,7 @@ QT_DIR=/opt/Qt6.2.0/6.2.0/gcc_64
 # 定义版本号
 QFSVIEWER_MAJARVERSION="0"
 QFSVIEWER_SUBVERSION="1"
-QFSVIEWER_REVISION="1"
+QFSVIEWER_REVISION="2"
 ###############################################################################
 
 
@@ -45,7 +45,9 @@ mkdir -p ./dpkg/QFSViewer_Linux_"$QFSVIEWER_VERSION"_x86_64/opt/QFSViewer
 cp -r ./test ./dpkg/QFSViewer_Linux_"$QFSVIEWER_VERSION"_x86_64/opt/QFSViewer/test
 # 配置打包信息
 sed -i "s/#VERSION#/$QFSVIEWER_MAJARVERSION.$QFSVIEWER_SUBVERSION$QFSVIEWER_REVISION/g" ./dpkg/QFSViewer_Linux_"$QFSVIEWER_VERSION"_x86_64/DEBIAN/control
-SIZE=$(du -sh -B 1024 ./dpkg/QFSViewer_Linux_"$QFSVIEWER_VERSION"_x86_64 | sed "s/.\///g")
+cd ./dpkg/QFSViewer_Linux_"$QFSVIEWER_VERSION"_x86_64
+SIZE=$(du -sh -B 1024 ./ | sed "s/.\///g")
+cd -
 InstalledSize=$SIZE
 sed -i "s/#SIZE#/$InstalledSize/g" ./dpkg/QFSViewer_Linux_"$QFSVIEWER_VERSION"_x86_64/DEBIAN/control
 chmod 755 ./dpkg/QFSViewer_Linux_"$QFSVIEWER_VERSION"_x86_64/* -R
