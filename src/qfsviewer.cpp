@@ -28,8 +28,8 @@
 #include <QDate>
 #include <QTime>
 #include <QMenu>
-#include <QFileDialog>
 
+#include "filedialog.h"
 #include "qfonticon.h"
 #include "qfsviewer.h"
 
@@ -171,7 +171,7 @@ void FSViewWindow::contextMenuEvent(QContextMenuEvent *event) {
                         QMessageBox::critical(this, tr("Error"), tr("Exporting dirs is not currently supported!"));
                         return;
                     } else if(type == FSViewModel::FSView_REG_FILE) {
-                        QString filename = QFileDialog::getSaveFileName(this, tr("Save File"),
+                        QString filename = FileDialog::getSaveFileName(this, tr("Save File"),
                                 (m_configFile?m_configFile->config_dict.lastFilePath:QDir::homePath())+"/"+name);
                         if (filename.isEmpty())
                             return;
@@ -229,7 +229,7 @@ void FSViewWindow::contextMenuEvent(QContextMenuEvent *event) {
                         path.replace("C:/","");
                     #endif
                     }
-                    QString filePath = QFileDialog::getOpenFileName(this, tr("Open File"), 
+                    QString filePath = FileDialog::getOpenFileName(this, tr("Open File"), 
                         m_configFile? m_configFile->config_dict.lastFilePath:QDir::homePath());
                     if (filePath.isEmpty())
                         return;

@@ -45,6 +45,7 @@ HEADERS += \
         src/mainwindow.h \
         src/qfsviewer.h \
         src/fsviewmodel.h \
+        src/filedialog.h \
         src/configFile.h \
         src/treemodel.h
 

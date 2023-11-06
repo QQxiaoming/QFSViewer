@@ -19,13 +19,13 @@
  */
 #include <QFileInfo>
 #include <QDir>
-#include <QFileDialog>
 #include <QMessageBox>
 #include <QApplication>
 #include <QString>
 #include <QTranslator>
 #include <iostream>
 
+#include "filedialog.h"
 #include "qfonticon.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -159,7 +159,7 @@ void MainWindow::do_list_fs(const QString &imgFile, uint64_t offset, uint64_t si
 void MainWindow::on_pushButton_clicked()
 {
     QString originFile = ui->lineEdit->text();
-    QString imgFile = QFileDialog::getOpenFileName(this, "Select image file", originFile.isEmpty()?QDir::homePath():originFile, "Image Files (*.data *.raw *.img *.bin *.img.gz *.bin.gz *.ext4 *.ext3 *.ext2 *.jffs2 *.fat* *.exfat);;All Files (*)" );
+    QString imgFile = FileDialog::getOpenFileName(this, "Select image file", originFile.isEmpty()?QDir::homePath():originFile, "Image Files (*.data *.raw *.img *.bin *.img.gz *.bin.gz *.ext4 *.ext3 *.ext2 *.jffs2 *.fat* *.exfat);;All Files (*)" );
     if(imgFile.isEmpty()) {
         return;
     }
