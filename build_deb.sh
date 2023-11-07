@@ -3,15 +3,14 @@
 ###############################################################################
 # 定义Qt目录
 QT_DIR=/opt/Qt6.2.0/6.2.0/gcc_64
+###############################################################################
 
+
+###############################################################################
 # 定义版本号
-QFSVIEWER_MAJARVERSION="0"
-QFSVIEWER_SUBVERSION="1"
-QFSVIEWER_REVISION="2"
-###############################################################################
-
-
-###############################################################################
+QFSVIEWER_MAJARVERSION=$(< ./version.txt cut -d '.' -f 1)
+QFSVIEWER_SUBVERSION=$(< ./version.txt cut -d '.' -f 2)
+QFSVIEWER_REVISION=$(< ./version.txt cut -d '.' -f 3)
 export PATH=$QT_DIR/bin:$PATH
 export LD_LIBRARY_PATH=$QT_DIR/lib:$LD_LIBRARY_PATH
 export QT_PLUGIN_PATH=$QT_DIR/plugins
