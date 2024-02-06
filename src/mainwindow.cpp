@@ -31,10 +31,13 @@
 #include "ui_mainwindow.h"
 
 
-const static QString VERSION = APP_VERSION;
-const static QString GIT_TAG =
-#include "git_tag.inc"
-;
+#include "build_info.inc"
+
+const QString VERSION = APP_VERSION;
+const QString GIT_TAG = BUILD_INFO;
+const QString DATE_TAG = BUILD_DATE;
+const QString HASH_TAG = BUILD_HASH;
+const QString SHORT_HASH_TAG = BUILD_SHORT_HASH;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
