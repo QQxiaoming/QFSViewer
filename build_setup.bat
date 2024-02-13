@@ -43,5 +43,12 @@ windeployqt --dir .\InnoSetup\build .\InnoSetup\build\QFSViewer.exe
 echo "wait inno build setup..."
 iscc /q ".\InnoSetup\build_temp_setup.iss"
 del .\InnoSetup\build_temp_setup.iss
+FOR /F "delims=. tokens=1-3" %%x IN ("%QFSVIEWER_VERSION%") DO (
+    set "QFSVIEWER_MAJARVERSION=%%x"
+    set "QFSVIEWER_SUBVERSION=%%y"
+    set "QFSVIEWER_REVISION=%%z"
+)
+mkdir ".\output"
+echo F|xcopy /S /Q /Y /F ".\InnoSetup\QFSViewer_setup.exe" ".\output\QFSViewer_windows_V%QFSVIEWER_MAJARVERSION%%QFSVIEWER_SUBVERSION%%QFSVIEWER_REVISION%_x86_64_setup.exe"
 echo "build success!"
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

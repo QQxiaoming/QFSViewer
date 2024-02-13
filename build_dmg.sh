@@ -30,5 +30,14 @@ cd ./build_release/out
 $QT_DIR/bin/macdeployqt QFSViewer.app
 otool -L ./QFSViewer.app/Contents/MacOS/QFSViewer
 ./build-dmg.sh QFSViewer
+cd ../../
+mkdir dmgOut
+cpu=$(sysctl -n machdep.cpu.brand_string)
+ARCH="x86_64"
+case $cpu in
+  *Intel*) ARCH="x86_64" ;;
+  *Apple*) ARCH="arm64" ;;
+esac
+cp ./build_release/out/QFSViewer.dmg ./dmgOut/QFSViewer_macos_"$QFSVIEWER_VERSION"_"$ARCH".dmg
 echo build success!
 ###############################################################################

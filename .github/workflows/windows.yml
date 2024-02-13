@@ -59,7 +59,7 @@ jobs:
         with:
           name: QFSViewer_windows
           path: |
-            ./InnoSetup/QFSViewer_setup.exe
+            ./output/*.exe
 
       - name: Run tests
         run: |

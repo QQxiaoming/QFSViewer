@@ -52,7 +52,7 @@ jobs:
         with:
           name: QFSViewer_macos
           path: |
-            ./build_release/out/QFSViewer.dmg
+            ./dmgOut/*.dmg
 
       - name: Run tests
         run: |
@@ -89,7 +89,7 @@ jobs:
         with:
           name: QFSViewer_macos_arm64
           path: |
-            ./build_release/out/QFSViewer.dmg
+            ./dmgOut/*.dmg
 
       - name: Run tests
         run: |
