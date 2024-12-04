@@ -29,7 +29,7 @@ cd ./build_release/out
 # 打包
 $QT_DIR/bin/macdeployqt QFSViewer.app
 otool -L ./QFSViewer.app/Contents/MacOS/QFSViewer
-./build-dmg.sh QFSViewer
+sudo ./build-dmg.sh QFSViewer
 cd ../../
 mkdir dmgOut
 cpu=$(sysctl -n machdep.cpu.brand_string)
